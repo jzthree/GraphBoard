@@ -1,9 +1,9 @@
 # GraphBoard
 
-This is a standalone TensorFlow's graph visualizer frontend for directed graphs. The goal of this repository to provide a general purpose graph interactive visualizer (which TensorBoard already pretty much provided), as well as providing necessary documentations.
+This is a standalone TensorFlow's graph visualizer frontend for directed graphs. The goal of this repository to provide a general purpose interactive graph visualizer (which TensorBoard already pretty much provided), as well as providing necessary documentations.
 
 
-(Work in progress) I have removed as much unnecessary parts as I can safely identify in the first look. The code is working npw. 
+(Work in progress and help welcomed) I have removed as much unnecessary parts as I can safely identify in the first look. There are likely still a lot of clean up that can be done (I didn't remove any node.js dependencies for example). The code is working now. 
 
 
 ####TensorBoard graph visualization features:
@@ -18,7 +18,7 @@ I was too lazy to inlcude an actual screenshot for this striped-down version it 
 
 ####How to use:
 
-To use gulp and plugins as webserver and livereload during development, run `npm run prepare; gulp` (you may use nvm to install npm without root; expect some time to install all the dependencies). It will be served in localhost:8001 (if the port is also used it may throw an error). You can use any webserver you like.
+To use gulp and plugins as webserver and livereload during development, run `npm run prepare;npm install gulp -g; gulp` (you may use nvm to install npm without root; expect some time to install all the dependencies). It will be served in localhost:8001 (if the port is also used it may throw an error). You can use any webserver you like.
 
 A example is in `demo/index.html`. The example graph is in `demo/data/graph_run_agraph.pbtxt`
 
