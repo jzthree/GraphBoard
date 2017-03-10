@@ -13,7 +13,7 @@ This is a standalone TensorFlow's graph visualizer frontend for directed graphs.
 * Minimap which is also a avigator.
 * Display node information in a foldable floating window
 
-I was too lazy to inlcude an actual screenshot for this striped-down version it is basically the same except for that the header panel is remvoed. The example is a tensorflow computational graph but the implement is actually quite domain-agnostic so should be easy to adapt.  (you can check it out from accio:8001 if you are in our lab).
+I was too lazy to inlcude an actual screenshot for this striped-down version it is basically the same except for that the header panel is remvoed. The example is a tensorflow computational graph but the implement is actually quite domain-agnostic so should be easy to adapt.
 ![](https://www.tensorflow.org/images/graph_vis_animation.gif)
 
 ####How to use:
