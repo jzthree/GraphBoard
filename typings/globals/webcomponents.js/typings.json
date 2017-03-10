@@ -1,0 +1,8 @@
+{
+  "resolution": "main",
+  "tree": {
+    "src": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/2864d4666436b055aea2e46f53d5ee6bbabcba55/webcomponents.js/webcomponents.js.d.ts",
+    "raw": "registry:dt/webcomponents.js#0.6.0+20160728153134",
+    "typings": "https://raw.githubusercontent.com/DefinitelyTyped/DefinitelyTyped/2864d4666436b055aea2e46f53d5ee6bbabcba55/webcomponents.js/webcomponents.js.d.ts"
+  }
+}
