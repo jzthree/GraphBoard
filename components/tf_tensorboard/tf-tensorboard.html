@@ -1,0 +1,116 @@
+<!--
+@license
+Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../tf-graph-dashboard/tf-graph-dashboard.html">
+<link rel="import" href="../tf-backend/tf-backend.html">
+
+<style is="custom-style">
+
+  :root {
+    --tb-orange-weak: #ffa726;
+    --tb-orange-strong: #f57c00;
+    --tb-grey-darker: #e2e2e2;
+    --tb-grey-lighter: #f3f3f3;
+    --tb-ui-dark-accent: #757575;
+    --tb-ui-light-accent: #e0e0e0;
+    --tb-graph-faded: #e0d4b3;
+  }
+
+</style>
+
+
+<!--
+tf-tensorboard is the frontend entry point for TensorBoard.
+
+It implements a toolbar (via paper-header-panel and paper-toolbar) that
+allows the user to toggle between various dashboards.
+-->
+<dom-module id="tf-tensorboard">
+  <template>
+      <div id="content" class="fit">
+        <content id="injected-overview"></content>
+
+          <tf-graph-dashboard
+            id="graphs"
+            backend="[[_backend]]"
+            debugger-data-enabled="[[_debuggerDataEnabled]]"
+          ></tf-graph-dashboard>
+     
+      </div>
+
+    <style>
+      :host {
+        height: 100%;
+        display: block;
+        background-color: var(--paper-grey-100);
+      }
+      #content {
+        height: 100%;
+      }
+
+      [disabled] {
+        opacity: 0.2;
+        color: white;
+      }
+
+    </style>
+  </template>
+  <script>
+    Polymer({
+      is: "tf-tensorboard",
+      properties: {
+        router: {
+          type: Object,
+          value: function() {
+            return TF.Backend.router();
+          },
+        },
+        _backend: {
+          type: Object,
+          computed: "_makeBackend(router, demoDir)",
+        },
+        _debuggerDataEnabled: false,
+
+        // If this is set to a string, TensorBoard will switch to "demo mode"
+        // and attempt to load serialized json data from that directory. You can
+        // generate conformant json using
+        // tensorboard/scripts/serialize_tensorboard.py
+        demoDir: {
+          type: String,
+          value: null,
+        },
+
+      },
+
+
+      _makeBackend: function(router, demoDir) {
+        // use the demoDir if it is set, otherwise use the provided router
+        if (demoDir != null) {
+          router = TF.Backend.router(demoDir, true);
+        }
+        return new TF.Backend.Backend(router);
+      },
+
+
+
+    });
+  </script>
+  <!-- Compiled bundle of all components using ES6 modules. -->
+  <script src="../bundle.js"></script>
+</dom-module>
