@@ -18,9 +18,14 @@ I was too lazy to inlcude an actual screenshot for this striped-down version it 
 
 ####How to use:
 
-To use gulp and plugins as webserver and livereload during development, run `npm run prepare;npm install gulp -g; gulp` (you may use nvm to install npm without root; expect some time to install all the dependencies). It will be served in localhost:8001 (if the port is also used it may throw an error). You can use any webserver you like.
+To use gulp and plugins as webserver and livereload during development, run 
+`npm run prepare;npm install gulp -g; gulp` 
+(you may use nvm to install npm without root; expect some time to install all the dependencies). It will be served in localhost:8001 (if the port is also used it may throw an error). 
 
-A example is in `demo/index.html`. The example graph is in `demo/data/graph_run_agraph.pbtxt`
+If you are using Mac OS X, unfortunately currently there is an issue with gulp livereload. You can temporarily disable it by setting 
+`livereload: {     enable: false, ...}` in gulpfile.js.
+
+After you started the gulp webserver, an example is in `demo/index.html`. The example graph is in `demo/data/graph_run_agraph.pbtxt`
 
 
 ####Development:
