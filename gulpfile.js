@@ -18,6 +18,8 @@ var server = require('gulp-server-livereload');
 var minimist = require('minimist');
 var util = require('./gulp_tasks/util');
 var typedoc = require("gulp-typedoc");
+var shell = require('gulp-shell')
+
 
 var options = minimist(process.argv.slice(2), {
   default: {
@@ -91,7 +93,21 @@ gulp.task('clean', function () {
       .pipe(cleanCompiledTypeScript());
 });
 
-gulp.task("typedoc", function() {
+function emptyfile(filename, string) {
+  var src = require('stream').Readable({ objectMode: true })
+  src._read = function () {
+    this.push(new gutil.File({
+      cwd: "",
+      base: "",
+      path: filename,
+      contents: new Buffer(string)
+    }))
+    this.push(null)
+  }
+  return src
+}
+
+gulp.task("typedoc_", function() {
     return gulp
         .src(["./components/tf_graph_common/lib/*.ts","./components/tf_graph_common/lib/scene/*.ts"])
         .pipe(typedoc({
@@ -105,3 +121,7 @@ gulp.task("typedoc", function() {
         }))
     ;
 });
+
+gulp.task('typedoc',['typedoc_'], shell.task([
+  'touch ./docs/.nojekyll ',
+]))
