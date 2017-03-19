@@ -17,6 +17,7 @@ var gulp = require('gulp');
 var server = require('gulp-server-livereload');
 var minimist = require('minimist');
 var util = require('./gulp_tasks/util');
+var typedoc = require("gulp-typedoc");
 
 var options = minimist(process.argv.slice(2), {
   default: {
@@ -88,4 +89,19 @@ var cleanCompiledTypeScript = require('gulp-clean-compiled-typescript');
 gulp.task('clean', function () {
   return gulp.src(['./components/**/*.ts', '!./components/**/deps.d.ts'])
       .pipe(cleanCompiledTypeScript());
+});
+
+gulp.task("typedoc", function() {
+    return gulp
+        .src(["./components/tf_graph_common/lib/*.ts","./components/tf_graph_common/lib/scene/*.ts"])
+        .pipe(typedoc({
+            module: "commonjs",
+            target: "es6",
+            out: "./docs/",
+            name: "GraphBoard/tf_graph_common",
+            ignoreCompilerErrors: true,
+            includeDeclarations: true,
+            excludeExternals: true,
+        }))
+    ;
 });
