@@ -53,7 +53,7 @@ tg-graph-common
     proto
     render
     template
-    utl
+    util
     
     
 Tensorboard interface uses Google's Polymer 1.7 as the frontend framework. The component reuse is provided by html import. It is my first time to see it but it seems reasonably simple to use.
