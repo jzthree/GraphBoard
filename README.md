@@ -54,7 +54,7 @@ tg-graph-common
     render
     template
     util
-    
+```
     
 Tensorboard interface uses Google's Polymer 1.7 as the frontend framework. The component reuse is provided by html import. It is my first time to see it but it seems reasonably simple to use.
 ```
@@ -78,9 +78,6 @@ tf-tensorboard
         :Display the left panel that provide some control utilities like choosing graph
         *tf-dashboard
         *tf-backend
-    *tf-backend
-```
-
-        
+    *tf-backend   
 ```
 
