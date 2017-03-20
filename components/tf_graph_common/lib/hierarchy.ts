@@ -15,7 +15,7 @@ limitations under the License.
 /**
  * Package for the Graph Hierarchy for TensorFlow graph.
  */
-module tf.graph.hierarchy {
+module tfgraph.hierarchy {
 
 /**
  * Class used as output for getPredecessors and getSuccessors methods
@@ -380,18 +380,18 @@ function findEdgeTargetsInGraph(
 export interface HierarchyParams {
   verifyTemplate: boolean;
   seriesNodeMinSize: number;
-  seriesMap: { [name: string]: tf.graph.SeriesGroupingType };
+  seriesMap: { [name: string]: tfgraph.SeriesGroupingType };
 }
 
 /**
  * @param graph The raw graph.
  * @param params Parameters used when building a hierarchy.
  */
-export function build(graph: tf.graph.SlimGraph, params: HierarchyParams,
+export function build(graph: tfgraph.SlimGraph, params: HierarchyParams,
     tracker: ProgressTracker): Promise<Hierarchy|void> {
   let h = new HierarchyImpl();
   let seriesNames: { [name: string]: string } = {};
-  return tf.graph.util
+  return tfgraph.util
       .runAsyncTask(
           'Adding nodes', 20,
           () => {
@@ -407,7 +407,7 @@ export function build(graph: tf.graph.SlimGraph, params: HierarchyParams,
           },
           tracker)
       .then(() => {
-        return tf.graph.util.runAsyncTask('Detect series', 20, () => {
+        return tfgraph.util.runAsyncTask('Detect series', 20, () => {
           if (params.seriesNodeMinSize > 0) {
             groupSeries(
                 h.root, h, seriesNames, params.seriesNodeMinSize,
@@ -416,12 +416,12 @@ export function build(graph: tf.graph.SlimGraph, params: HierarchyParams,
         }, tracker);
       })
       .then(() => {
-        return tf.graph.util.runAsyncTask('Adding edges', 30, () => {
+        return tfgraph.util.runAsyncTask('Adding edges', 30, () => {
           addEdges(h, graph, seriesNames);
         }, tracker);
       })
       .then(() => {
-        return tf.graph.util.runAsyncTask(
+        return tfgraph.util.runAsyncTask(
             'Finding similar subgraphs', 30, () => {
               h.templates = template.detect(h, params.verifyTemplate);
             }, tracker);
@@ -430,7 +430,7 @@ export function build(graph: tf.graph.SlimGraph, params: HierarchyParams,
 };
 
 export function joinAndAggregateStats(
-    h: Hierarchy, stats: tf.graph.proto.StepStats) {
+    h: Hierarchy, stats: tfgraph.proto.StepStats) {
   // Get all the possible device names.
   let deviceNames = {};
   _.each(h.root.leaves(), nodeName => {
@@ -612,11 +612,11 @@ function addEdges(h: Hierarchy, graph: SlimGraph,
  */
 function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
     seriesNames: { [name: string]: string }, threshold: number,
-    map: { [name: string]: tf.graph.SeriesGroupingType }) {
+    map: { [name: string]: tfgraph.SeriesGroupingType }) {
   let metagraph = metanode.metagraph;
   _.each(metagraph.nodes(), n => {
     let child = metagraph.node(n);
-    if (child.type === tf.graph.NodeType.META) {
+    if (child.type === tfgraph.NodeType.META) {
       groupSeries(<Metanode>child, hierarchy, seriesNames, threshold, map);
     }
   });
@@ -638,11 +638,11 @@ function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
     // this series has not been adding to the series map, then set this
     // series to be shown ungrouped in the map.
     if (nodeMemberNames.length < threshold && !(seriesNode.name in map)) {
-      map[seriesNode.name] = tf.graph.SeriesGroupingType.UNGROUP;
+      map[seriesNode.name] = tfgraph.SeriesGroupingType.UNGROUP;
     }
     // If the series is in the map as ungrouped then do not group the series.
     if (seriesNode.name in map
-      && map[seriesNode.name] === tf.graph.SeriesGroupingType.UNGROUP) {
+      && map[seriesNode.name] === tfgraph.SeriesGroupingType.UNGROUP) {
       return;
     }
     hierarchy.setNode(seriesName, seriesNode); // add to the index
@@ -791,4 +791,4 @@ function addSeriesToDict(seriesNodes: SeriesNode[],
   }
 }
 
-} // close module tf.graph.hierarchy
+} // close module tfgraph.hierarchy

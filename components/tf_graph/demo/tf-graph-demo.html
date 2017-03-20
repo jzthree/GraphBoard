@@ -132,7 +132,7 @@ Polymer({
     }
   },
   created: function() {
-    let queryParams = tf.graph.util.getQueryParams(location.search);
+    let queryParams = tfgraph.util.getQueryParams(location.search);
     let selectedDataset = 0;
 
     if (typeof DEMO_DATASETS === 'undefined') {

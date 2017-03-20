@@ -120,7 +120,7 @@ Polymer({
       type: Boolean,
       value: true
     },
-    // A mapping between node name to the tf.graph.scene.HealthPill to render.
+    // A mapping between node name to the tfgraph.scene.HealthPill to render.
     nodeNamesToHealthPills: Object,
     // The step of health pills to show throughout the graph.
     healthPillStepIndex: Number,
@@ -132,22 +132,22 @@ Polymer({
   _statsChanged: function(stats, devicesForStats) {
     if (this.graphHierarchy) {
       if (stats && devicesForStats) {
-        tf.graph.joinStatsInfoWithGraph(this.basicGraph, stats, devicesForStats);
-        tf.graph.hierarchy.joinAndAggregateStats(this.graphHierarchy, stats);
+        tfgraph.joinStatsInfoWithGraph(this.basicGraph, stats, devicesForStats);
+        tfgraph.hierarchy.joinAndAggregateStats(this.graphHierarchy, stats);
       }
       // Recompute the rendering information.
       this._buildRenderHierarchy(this.graphHierarchy);
     }
   },
   _buildRenderHierarchy: function(graphHierarchy) {
-    tf.graph.util.time('new tf.graph.render.Hierarchy', function() {
-      if (graphHierarchy.root.type !== tf.graph.NodeType.META) {
+    tfgraph.util.time('new tfgraph.render.Hierarchy', function() {
+      if (graphHierarchy.root.type !== tfgraph.NodeType.META) {
         // root must be metanode but sometimes Polymer's dom-if has not
         // remove tf-graph element yet in <tf-node-info>
         // and thus mistakenly pass non-metanode to this module.
         return;
       }
-      var renderGraph = new tf.graph.render.RenderGraphInfo(
+      var renderGraph = new tfgraph.render.RenderGraphInfo(
           graphHierarchy, !!this.stats /** displayingStats */);
       // Producing the 'color by' parameters to be consumed
       // by the tf-graph-controls panel. It contains information about the
@@ -253,7 +253,7 @@ Polymer({
     var nodeName = event.detail.name;
     var renderNode = this.renderHierarchy.getRenderNodeByName(nodeName);
     // Op nodes are not expandable.
-    if (renderNode.node.type === tf.graph.NodeType.OP) {
+    if (renderNode.node.type === tfgraph.NodeType.OP) {
       return;
     }
     this.renderHierarchy.buildSubhierarchy(nodeName);
@@ -270,14 +270,14 @@ Polymer({
     // Toggle the include setting of the specified node appropriately.
     var nodeName = event.detail.name;
     var renderNode = this.renderHierarchy.getRenderNodeByName(nodeName);
-    if (renderNode.node.include == tf.graph.InclusionType.INCLUDE) {
-      renderNode.node.include = tf.graph.InclusionType.EXCLUDE;
-    } else if (renderNode.node.include == tf.graph.InclusionType.EXCLUDE) {
-      renderNode.node.include = tf.graph.InclusionType.INCLUDE;
+    if (renderNode.node.include == tfgraph.InclusionType.INCLUDE) {
+      renderNode.node.include = tfgraph.InclusionType.EXCLUDE;
+    } else if (renderNode.node.include == tfgraph.InclusionType.EXCLUDE) {
+      renderNode.node.include = tfgraph.InclusionType.INCLUDE;
     } else {
       renderNode.node.include =
        this.renderHierarchy.isNodeAuxiliary(renderNode)
-          ? tf.graph.InclusionType.INCLUDE : tf.graph.InclusionType.EXCLUDE;
+          ? tfgraph.InclusionType.INCLUDE : tfgraph.InclusionType.EXCLUDE;
     }
 
     // Rebuild the render hierarchy.
@@ -286,17 +286,17 @@ Polymer({
   _nodeToggleSeriesGroup: function(event) {
     // Toggle the group setting of the specified node appropriately.
     var nodeName = event.detail.name;
-    tf.graph.toggleNodeSeriesGroup(this.hierarchyParams.seriesMap, nodeName);
+    tfgraph.toggleNodeSeriesGroup(this.hierarchyParams.seriesMap, nodeName);
 
     // Rebuild the render hierarchy with the updated series grouping map.
     this.set('progress', {
       value: 0,
       msg: ''
     });
-    var tracker = tf.graph.util.getTracker(this);
-    var hierarchyTracker = tf.graph.util.getSubtaskTracker(tracker, 100,
+    var tracker = tfgraph.util.getTracker(this);
+    var hierarchyTracker = tfgraph.util.getSubtaskTracker(tracker, 100,
           'Namespace hierarchy');
-    tf.graph.hierarchy.build(this.basicGraph, this.hierarchyParams, hierarchyTracker)
+    tfgraph.hierarchy.build(this.basicGraph, this.hierarchyParams, hierarchyTracker)
     .then(function(graphHierarchy) {
       this.set('graphHierarchy', graphHierarchy);
       this._buildRenderHierarchy(this.graphHierarchy);

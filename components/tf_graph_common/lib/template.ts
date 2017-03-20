@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-module tf.graph.template {
+module tfgraph.template {
 
 /**
  * Detect repeating patterns of subgraphs.
@@ -80,11 +80,11 @@ function getSignature(metanode) {
  * (excluding leaf nodes and singular metanodes).
  * @param graph The graph
  * @return Array of pairs of [signature,
- *   Object with min level of the template and an Array of tf.graph.Group]
+ *   Object with min level of the template and an Array of tfgraph.Group]
  *   sort by ascending order of minimum depth at which metanode appears.
  */
 function clusterSimilarSubgraphs(h: hierarchy.Hierarchy) {
-  /** a dict from metanode.signature() => Array of tf.graph.Groups */
+  /** a dict from metanode.signature() => Array of tfgraph.Groups */
   let hashDict = _(h.getNodeMap()).reduce(
       (hash, node: OpNode|Metanode, name) => {
     if (node.type !== NodeType.META) {
@@ -186,7 +186,7 @@ function sortNodes(names: string[],
 
 function isSimilarSubgraph(g1: graphlib.Graph<any, any>,
     g2: graphlib.Graph<any, any>) {
-  if (!tf.graph.hasSimilarDegreeSequence(g1, g2)) {
+  if (!tfgraph.hasSimilarDegreeSequence(g1, g2)) {
       return false;
   }
 

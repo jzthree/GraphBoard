@@ -13,27 +13,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 /* tslint:disable:no-namespace */
-var tf;
-(function (tf) {
-    var graph;
-    (function (graph) {
-        var test;
-        (function (test) {
-            var util;
-            (function (util) {
-                /**
-                 * Converts a utf-8 string to an ArrayBuffer.
-                 */
-                function stringToArrayBuffer(str) {
-                    var buf = new ArrayBuffer(str.length);
-                    var bufView = new Uint8Array(buf);
-                    for (var i = 0, strLen = str.length; i < strLen; i++) {
-                        bufView[i] = str.charCodeAt(i);
-                    }
-                    return buf;
+var tfgraph;
+(function (tfgraph) {
+    var test;
+    (function (test) {
+        var util;
+        (function (util) {
+            /**
+             * Converts a utf-8 string to an ArrayBuffer.
+             */
+            function stringToArrayBuffer(str) {
+                var buf = new ArrayBuffer(str.length);
+                var bufView = new Uint8Array(buf);
+                for (var i = 0, strLen = str.length; i < strLen; i++) {
+                    bufView[i] = str.charCodeAt(i);
                 }
-                util.stringToArrayBuffer = stringToArrayBuffer;
-            })(util = test.util || (test.util = {}));
-        })(test = graph.test || (graph.test = {}));
-    })(graph = tf.graph || (tf.graph = {}));
-})(tf || (tf = {})); // module
+                return buf;
+            }
+            util.stringToArrayBuffer = stringToArrayBuffer;
+        })(util = test.util || (test.util = {}));
+    })(test = tfgraph.test || (tfgraph.test = {}));
+})(tfgraph || (tfgraph = {})); // module

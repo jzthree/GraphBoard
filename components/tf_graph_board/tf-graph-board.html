@@ -190,7 +190,7 @@ Polymer({
       type: Object,
       notify: true
     },
-    // A mapping between node name to the tf.graph.scene.HealthPill to render.
+    // A mapping between node name to the tfgraph.scene.HealthPill to render.
     nodeNamesToHealthPills: Object,
     // The step of health pills to show throughout the graph.
     healthPillStepIndex: Number,
@@ -223,7 +223,7 @@ Polymer({
   _updateNodeInclude: function(nodeName) {
     var node = this.graphHierarchy.node(nodeName);
     this.set("_selectedNodeInclude",
-      node ? node.include : tf.graph.InclusionType.UNSPECIFIED);
+      node ? node.include : tfgraph.InclusionType.UNSPECIFIED);
   },
   _nodeToggleExtract: function() {
     this._updateNodeInclude(this._selectedNode);

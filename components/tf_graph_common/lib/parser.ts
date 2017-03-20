@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-module tf.graph.parser {
+module tfgraph.parser {
 
 /**
  * Parses a native js value, which can be either a string, boolean or number.
@@ -54,7 +54,7 @@ export function fetchPbTxt(filepath: string): Promise<ArrayBuffer> {
  * Fetches the metadata file, parses it and returns a promise of the result.
  */
 export function fetchAndParseMetadata(path: string, tracker: ProgressTracker) {
-  return tf.graph.util
+  return tfgraph.util
       .runTask(
           'Reading metadata pbtxt', 40,
           () => {
@@ -65,7 +65,7 @@ export function fetchAndParseMetadata(path: string, tracker: ProgressTracker) {
           },
           tracker)
       .then((arrayBuffer: ArrayBuffer) => {
-        return tf.graph.util.runAsyncPromiseTask(
+        return tfgraph.util.runAsyncPromiseTask(
             'Parsing metadata.pbtxt', 60, () => {
               return arrayBuffer != null ? parseStatsPbTxt(arrayBuffer) :
                                            Promise.resolve(null);
@@ -79,7 +79,7 @@ export function fetchAndParseMetadata(path: string, tracker: ProgressTracker) {
  */
 export function fetchAndParseGraphData(path: string, pbTxtFile: Blob,
     tracker: ProgressTracker) {
-  return tf.graph.util
+  return tfgraph.util
       .runTask(
           'Reading graph pbtxt', 40,
           () => {
@@ -96,7 +96,7 @@ export function fetchAndParseGraphData(path: string, pbTxtFile: Blob,
           },
           tracker)
       .then((arrayBuffer: ArrayBuffer) => {
-        return tf.graph.util.runTask('Parsing graph.pbtxt', 60, () => {
+        return tfgraph.util.runTask('Parsing graph.pbtxt', 60, () => {
           return parseGraphPbTxt(arrayBuffer);
         }, tracker);
       });
@@ -188,7 +188,7 @@ const METADATA_REPEATED_FIELDS: {[attrPath: string]: boolean} = {
  * Parses an ArrayBuffer of a proto txt file into a raw Graph object.
  */
 export function parseGraphPbTxt(input: ArrayBuffer):
-    Promise<tf.graph.proto.NodeDef[]> {
+    Promise<tfgraph.proto.NodeDef[]> {
   return parsePbtxtFile(input, GRAPH_REPEATED_FIELDS).then(obj => obj['node']);
 }
 
@@ -196,7 +196,7 @@ export function parseGraphPbTxt(input: ArrayBuffer):
  * Parses an ArrayBuffer of a proto txt file into a StepStats object.
  */
 export function parseStatsPbTxt(input: ArrayBuffer):
-    Promise<tf.graph.proto.StepStats> {
+    Promise<tfgraph.proto.StepStats> {
   return parsePbtxtFile(input, METADATA_REPEATED_FIELDS)
       .then(obj => obj['step_stats']);
 }
@@ -281,4 +281,4 @@ function parsePbtxtFile(
   });
 }
 
-} // Close module tf.graph.parser.
+} // Close module tfgraph.parser.

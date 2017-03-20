@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-module tf.graph.scene.annotation {
+module tfgraph.scene.annotation {
   /**
    * Populate a given annotation container group
    *
@@ -144,7 +144,7 @@ function addAnnotationLabel(
                        .attr('text-anchor', a.isIn ? 'end' : 'start')
                        .text(label);
 
-  return tf.graph.scene.node.enforceLabelWidth(txtElement, -1);
+  return tfgraph.scene.node.enforceLabelWidth(txtElement, -1);
 }
 
 function addInteraction(selection, d: render.RenderNodeInfo,

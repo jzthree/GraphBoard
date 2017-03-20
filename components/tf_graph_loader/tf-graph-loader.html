@@ -83,8 +83,8 @@ Polymer({
       value: 0,
       msg: ''
     });
-    var tracker = tf.graph.util.getTracker(this);
-    tf.graph.parser.fetchAndParseMetadata(path, tracker)
+    var tracker = tfgraph.util.getTracker(this);
+    tfgraph.parser.fetchAndParseMetadata(path, tracker)
     .then(function(stats) {
       this._setOutStats(stats);
     }.bind(this));
@@ -95,7 +95,7 @@ Polymer({
       value: 0,
       msg: ''
     });
-    var tracker = tf.graph.util.getTracker(this);
+    var tracker = tfgraph.util.getTracker(this);
     var hierarchyParams = {
       verifyTemplate: true,
       // If a set of numbered op nodes has at least this number of nodes
@@ -108,8 +108,8 @@ Polymer({
       seriesMap: {},
     };
     this._setOutHierarchyParams(hierarchyParams);
-    var dataTracker = tf.graph.util.getSubtaskTracker(tracker, 30, 'Data');
-    tf.graph.parser.fetchAndParseGraphData(path, pbTxtFile, dataTracker)
+    var dataTracker = tfgraph.util.getSubtaskTracker(tracker, 30, 'Data');
+    tfgraph.parser.fetchAndParseGraphData(path, pbTxtFile, dataTracker)
     .then(function(graph) {
       if (!graph) {
         throw 'The graph is empty. Make sure that the graph is passed to the ' +
@@ -141,14 +141,14 @@ Polymer({
         outEmbeddingTypes: ['^[a-zA-Z]+Summary$'],
         refEdges: refEdges
       };
-      var graphTracker = tf.graph.util.getSubtaskTracker(tracker, 20, 'Graph');
-      return tf.graph.build(graph, buildParams, graphTracker);
+      var graphTracker = tfgraph.util.getSubtaskTracker(tracker, 20, 'Graph');
+      return tfgraph.build(graph, buildParams, graphTracker);
     })
     .then(function(graph) {
       this._setOutGraph(graph);
-      var hierarchyTracker = tf.graph.util.getSubtaskTracker(tracker, 50,
+      var hierarchyTracker = tfgraph.util.getSubtaskTracker(tracker, 50,
           'Namespace hierarchy');
-      return tf.graph.hierarchy.build(graph, hierarchyParams, hierarchyTracker);
+      return tfgraph.hierarchy.build(graph, hierarchyParams, hierarchyTracker);
     }.bind(this))
     .then(function(graphHierarchy) {
       // Update the properties which notify the parent with the

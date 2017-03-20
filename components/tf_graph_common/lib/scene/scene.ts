@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-module tf.graph.scene {
+module tfgraph.scene {
   const svgNamespace = 'http://www.w3.org/2000/svg';
 
   /** Enums element class of objects in the scene */
@@ -244,20 +244,20 @@ export function selectChild(
  * <g class='scene'>
  *   <g class='core'>
  *     <g class='edges'>
- *       ... stuff from tf.graph.scene.edges.build ...
+ *       ... stuff from tfgraph.scene.edges.build ...
  *     </g>
  *     <g class='nodes'>
- *       ... stuff from tf.graph.scene.nodes.build ...
+ *       ... stuff from tfgraph.scene.nodes.build ...
  *     </g>
  *   </g>
  *   <g class='in-extract'>
  *     <g class='nodes'>
- *       ... stuff from tf.graph.scene.nodes.build ...
+ *       ... stuff from tfgraph.scene.nodes.build ...
  *     </g>
  *   </g>
  *   <g class='out-extract'>
  *     <g class='nodes'>
- *       ... stuff from tf.graph.scene.nodes.build ...
+ *       ... stuff from tfgraph.scene.nodes.build ...
  *     </g>
  *   </g>
  * </g>

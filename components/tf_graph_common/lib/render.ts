@@ -15,7 +15,7 @@ limitations under the License.
 /**
  * Package for the Render Hierarchy for TensorFlow graph.
  */
-module tf.graph.render {
+module tfgraph.render {
 
 export type Point = {x: number, y: number};
 
@@ -279,7 +279,7 @@ export class RenderGraphInfo {
 
     // We only fade nodes when we're displaying stats.
     renderInfo.isFadedOut = this.displayingStats &&
-        !tf.graph.util.hasDisplayableNodeStats(node.stats);
+        !tfgraph.util.hasDisplayableNodeStats(node.stats);
 
     if (node.isGroupNode) {
       // Make a list of tuples (device, proportion), where proportion
@@ -925,7 +925,7 @@ export class AnnotationList {
       return;
     }
 
-    let ellipsisNode = new tf.graph.EllipsisNodeImpl(1);
+    let ellipsisNode = new tfgraph.EllipsisNodeImpl(1);
     this.list.push(new Annotation(ellipsisNode,
         new RenderNodeInfo(ellipsisNode), null,
         AnnotationType.ELLIPSIS, annotation.isIn));
@@ -1128,7 +1128,7 @@ export class RenderMetaedgeInfo {
 
   /**
    * X and Y coordinate pairs of the points in the path of the edge.
-   * @see tf.graph.node.subsceneAdjustPaths
+   * @see tfgraph.node.subsceneAdjustPaths
    */
   points: Point[];
 
@@ -1606,4 +1606,4 @@ function extractHighDegrees(renderNode: RenderGroupNodeInfo) {
     }
   });
 }
-} // close module tf.graph.render
+} // close module tfgraph.render

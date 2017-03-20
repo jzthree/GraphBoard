@@ -15,8 +15,8 @@ limitations under the License.
 suite('parser', function () {
     var assert = chai.assert;
     test('simple pbtxt', function (done) {
-        var pbtxt = tf.graph.test.util.stringToArrayBuffer("node {\n       name: \"Q\"\n       op: \"Input\"\n     }\n     node {\n       name: \"W\"\n       op: \"Input\"\n     }\n     node {\n       name: \"X\"\n       op: \"MatMul\"\n       input: \"Q\"\n       input: \"W\"\n     }");
-        tf.graph.parser.parseGraphPbTxt(pbtxt).then(function (nodes) {
+        var pbtxt = tfgraph.test.util.stringToArrayBuffer("node {\n       name: \"Q\"\n       op: \"Input\"\n     }\n     node {\n       name: \"W\"\n       op: \"Input\"\n     }\n     node {\n       name: \"X\"\n       op: \"MatMul\"\n       input: \"Q\"\n       input: \"W\"\n     }");
+        tfgraph.parser.parseGraphPbTxt(pbtxt).then(function (nodes) {
             assert.isTrue(nodes != null && nodes.length === 3);
             assert.equal('Q', nodes[0].name);
             assert.equal('Input', nodes[0].op);
@@ -30,8 +30,8 @@ suite('parser', function () {
         });
     });
     test('stats pbtxt parsing', function (done) {
-        var statsPbtxt = tf.graph.test.util.stringToArrayBuffer("step_stats {\n      dev_stats {\n        device: \"cpu\"\n        node_stats {\n          node_name: \"Q\"\n          all_start_micros: 10\n          all_end_rel_micros: 4\n        }\n        node_stats {\n          node_name: \"Q\"\n          all_start_micros: 12\n          all_end_rel_micros: 4\n        }\n      }\n    }");
-        tf.graph.parser.parseStatsPbTxt(statsPbtxt).then(function (stepStats) {
+        var statsPbtxt = tfgraph.test.util.stringToArrayBuffer("step_stats {\n      dev_stats {\n        device: \"cpu\"\n        node_stats {\n          node_name: \"Q\"\n          all_start_micros: 10\n          all_end_rel_micros: 4\n        }\n        node_stats {\n          node_name: \"Q\"\n          all_start_micros: 12\n          all_end_rel_micros: 4\n        }\n      }\n    }");
+        tfgraph.parser.parseStatsPbTxt(statsPbtxt).then(function (stepStats) {
             assert.equal(stepStats.dev_stats.length, 1);
             assert.equal(stepStats.dev_stats[0].device, 'cpu');
             assert.equal(stepStats.dev_stats[0].node_stats.length, 2);

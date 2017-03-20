@@ -19,7 +19,7 @@ suite('graph', () => {
   test('graphlib exists', () => { assert.isTrue(graphlib != null); });
 
   test('simple graph contruction', done => {
-    let pbtxt = tf.graph.test.util.stringToArrayBuffer(`
+    let pbtxt = tfgraph.test.util.stringToArrayBuffer(`
       node {
         name: "Q"
         op: "Input"
@@ -34,7 +34,7 @@ suite('graph', () => {
         input: "Q:2"
         input: "W"
       }`);
-    let statsPbtxt = tf.graph.test.util.stringToArrayBuffer(`step_stats {
+    let statsPbtxt = tfgraph.test.util.stringToArrayBuffer(`step_stats {
       dev_stats {
         device: "cpu"
         node_stats {
@@ -50,17 +50,17 @@ suite('graph', () => {
       }
     }`);
 
-    let buildParams: tf.graph.BuildParams = {
+    let buildParams: tfgraph.BuildParams = {
       enableEmbedding: true,
       inEmbeddingTypes: ['Const'],
       outEmbeddingTypes: ['^[a-zA-Z]+Summary$'],
       refEdges: {}
     };
     let dummyTracker =
-        tf.graph.util.getTracker({set: () => { return; }, progress: 0});
-    tf.graph.parser.parseGraphPbTxt(pbtxt).then(nodes => {
-      tf.graph.build(nodes, buildParams, dummyTracker)
-          .then((slimGraph: tf.graph.SlimGraph) => {
+        tfgraph.util.getTracker({set: () => { return; }, progress: 0});
+    tfgraph.parser.parseGraphPbTxt(pbtxt).then(nodes => {
+      tfgraph.build(nodes, buildParams, dummyTracker)
+          .then((slimGraph: tfgraph.SlimGraph) => {
             assert.isTrue(slimGraph.nodes['X'] != null);
             assert.isTrue(slimGraph.nodes['W'] != null);
             assert.isTrue(slimGraph.nodes['Q'] != null);
@@ -73,8 +73,8 @@ suite('graph', () => {
             assert.equal(secondInputOfX.name, 'W');
             assert.equal(secondInputOfX.outputTensorIndex, 0);
 
-            tf.graph.parser.parseStatsPbTxt(statsPbtxt).then(stepStats => {
-              tf.graph.joinStatsInfoWithGraph(slimGraph, stepStats);
+            tfgraph.parser.parseStatsPbTxt(statsPbtxt).then(stepStats => {
+              tfgraph.joinStatsInfoWithGraph(slimGraph, stepStats);
               assert.equal(slimGraph.nodes['Q'].stats.totalMicros, 6);
               done();
             });

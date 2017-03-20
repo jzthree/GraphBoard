@@ -617,7 +617,7 @@ Polymer({
   _traceInputToggleChanged: function(event) {
     // Flip the state of the trace inputs flag.
     this.renderHierarchy.traceInputs = event.target.active;
-    tf.graph.scene.node.traceInputs(this.renderHierarchy);
+    tfgraph.scene.node.traceInputs(this.renderHierarchy);
   },
   _statsNotNull: function(stats) {
     return stats != null;
@@ -644,7 +644,7 @@ Polymer({
     });
     // Devices names can be long so we remove the longest common prefix
     // before showing the devices in a list.
-    var suffixes = tf.graph.util.removeCommonPrefix(devices);
+    var suffixes = tfgraph.util.removeCommonPrefix(devices);
     return _.map(devices, function(device, i) {
       var ignoredMsg = null;
       _.each(DEVICE_NAMES_EXCLUDE, function(rule) {
@@ -695,15 +695,15 @@ Polymer({
     var minValue = params.minValue;
     var maxValue = params.maxValue;
     if (colorBy === 'memory') {
-      minValue = tf.graph.util.convertUnitsToHumanReadable(
-          minValue, tf.graph.util.MEMORY_UNITS);
-      maxValue = tf.graph.util.convertUnitsToHumanReadable(
-          maxValue, tf.graph.util.MEMORY_UNITS);
+      minValue = tfgraph.util.convertUnitsToHumanReadable(
+          minValue, tfgraph.util.MEMORY_UNITS);
+      maxValue = tfgraph.util.convertUnitsToHumanReadable(
+          maxValue, tfgraph.util.MEMORY_UNITS);
     } else if (colorBy === 'compute_time') {
-      minValue = tf.graph.util.convertUnitsToHumanReadable(
-          minValue, tf.graph.util.TIME_UNITS);
-      maxValue = tf.graph.util.convertUnitsToHumanReadable(
-          maxValue, tf.graph.util.TIME_UNITS);
+      minValue = tfgraph.util.convertUnitsToHumanReadable(
+          minValue, tfgraph.util.TIME_UNITS);
+      maxValue = tfgraph.util.convertUnitsToHumanReadable(
+          maxValue, tfgraph.util.TIME_UNITS);
     }
     return {
       minValue: minValue,

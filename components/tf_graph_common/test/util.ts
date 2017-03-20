@@ -15,7 +15,7 @@ limitations under the License.
 
 
 /* tslint:disable:no-namespace */
-module tf.graph.test.util {
+module tfgraph.test.util {
   /**
    * Converts a utf-8 string to an ArrayBuffer.
    */

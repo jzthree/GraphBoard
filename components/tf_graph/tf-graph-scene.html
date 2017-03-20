@@ -632,7 +632,7 @@ Polymer({
      * @type {d3.scale.ordinal}
      * Scale mapping from template name to a number between 0 and N-1
      * where N is the number of different template names. Used by
-     * tf.graph.scene.node when computing node color by structure.
+     * tfgraph.scene.node when computing node color by structure.
      */
     templateIndex: Function,
     /**
@@ -728,20 +728,20 @@ Polymer({
   /** Main method for building the scene */
   _build: function(renderHierarchy) {
     this.templateIndex = renderHierarchy.hierarchy.getTemplateIndex();
-    tf.graph.util.time('tf-graph-scene (layout):', function() {
+    tfgraph.util.time('tf-graph-scene (layout):', function() {
       // layout the scene for this meta / series node
-      tf.graph.layout.layoutScene(renderHierarchy.root, this);
+      tfgraph.layout.layoutScene(renderHierarchy.root, this);
     }.bind(this));
 
-    tf.graph.util.time('tf-graph-scene (build scene):', function() {
-      tf.graph.scene.buildGroup(d3.select(this.$.root), renderHierarchy.root, this);
-      tf.graph.scene.addGraphClickListener(this.$.svg, this);
-      tf.graph.scene.node.traceInputs(renderHierarchy);
+    tfgraph.util.time('tf-graph-scene (build scene):', function() {
+      tfgraph.scene.buildGroup(d3.select(this.$.root), renderHierarchy.root, this);
+      tfgraph.scene.addGraphClickListener(this.$.svg, this);
+      tfgraph.scene.node.traceInputs(renderHierarchy);
     }.bind(this));
     // Update the minimap again when the graph is done animating.
     setTimeout(function() {
       this.minimap.update();
-    }.bind(this), tf.graph.layout.PARAMS.animation.duration);
+    }.bind(this), tfgraph.layout.PARAMS.animation.duration);
   },
   ready: function() {
     this._zoom = d3.behavior.zoom()
@@ -795,28 +795,28 @@ Polymer({
     }.bind(this));
     // Initialize the minimap.
     this.minimap = this.$.minimap.init(this.$.svg, this.$.root, this._zoom,
-        tf.graph.layout.PARAMS.minimap.size,
-        tf.graph.layout.PARAMS.subscene.meta.labelHeight);
+        tfgraph.layout.PARAMS.minimap.size,
+        tfgraph.layout.PARAMS.subscene.meta.labelHeight);
   },
   _buildAndFit: function(renderHierarchy) {
     this._resetState();
     this._build(renderHierarchy);
     // Fit to screen after the graph is done animating.
-    setTimeout(this.fit.bind(this), tf.graph.layout.PARAMS.animation.duration);
+    setTimeout(this.fit.bind(this), tfgraph.layout.PARAMS.animation.duration);
   },
   _updateLabels: function(showLabels) {
     var mainGraphTitleElement = this.getElementsByClassName('title')[0];
     var titleStyle = mainGraphTitleElement.style;
     var auxTitleStyle = this.getElementsByClassName('auxTitle')[0].style;
-    var core = d3.select("." + tf.graph.scene.Class.Scene.GROUP + ">." +
-      tf.graph.scene.Class.Scene.CORE)[0][0];
+    var core = d3.select("." + tfgraph.scene.Class.Scene.GROUP + ">." +
+      tfgraph.scene.Class.Scene.CORE)[0][0];
     // Only show labels if the graph is fully loaded.
     if (showLabels && core && this.progress && this.progress.value === 100) {
       var aux =
-        d3.select("." + tf.graph.scene.Class.Scene.GROUP + ">." +
-          tf.graph.scene.Class.Scene.INEXTRACT)[0][0] ||
-        d3.select("." + tf.graph.scene.Class.Scene.GROUP + ">." +
-          tf.graph.scene.Class.Scene.OUTEXTRACT)[0][0];
+        d3.select("." + tfgraph.scene.Class.Scene.GROUP + ">." +
+          tfgraph.scene.Class.Scene.INEXTRACT)[0][0] ||
+        d3.select("." + tfgraph.scene.Class.Scene.GROUP + ">." +
+          tfgraph.scene.Class.Scene.OUTEXTRACT)[0][0];
       var coreX = core.getCTM().e;
       var auxX = aux ? aux.getCTM().e : null;
       titleStyle.display = 'inline';
@@ -853,7 +853,7 @@ Polymer({
     }
   },
   fit: function() {
-    tf.graph.scene.fit(this.$.svg, this.$.root, this._zoom, function() {
+    tfgraph.scene.fit(this.$.svg, this.$.root, this._zoom, function() {
       this._zoomed = false;
     }.bind(this));
   },
@@ -898,13 +898,13 @@ Polymer({
     var nodeGroup = this.getNodeGroup(n);
 
     if (nodeGroup) {
-      tf.graph.scene.node.stylize(nodeGroup, node, this);
+      tfgraph.scene.node.stylize(nodeGroup, node, this);
     }
 
     var annotationGroupIndex = this.getAnnotationGroupsIndex(n);
     _.each(annotationGroupIndex, function(aGroup, hostName) {
-      tf.graph.scene.node.stylize(aGroup, node, this,
-          tf.graph.scene.Class.Annotation.NODE);
+      tfgraph.scene.node.stylize(aGroup, node, this,
+          tfgraph.scene.Class.Annotation.NODE);
     }, this);
   },
 
@@ -927,7 +927,7 @@ Polymer({
       this._updateNodeState(oldSelectedNode);
     }
 
-    tf.graph.scene.node.traceInputs(this.renderHierarchy);
+    tfgraph.scene.node.traceInputs(this.renderHierarchy);
 
     if (!selectedNode) {
       return;
@@ -940,7 +940,7 @@ Polymer({
     var nodeParents = [];
     // Create list of all metanode parents of the selected node.
     while (node.parentNode != null
-        && node.parentNode.name != tf.graph.ROOT_NAME) {
+        && node.parentNode.name != tfgraph.ROOT_NAME) {
       node = node.parentNode;
       nodeParents.push(node.name);
     }
@@ -963,7 +963,7 @@ Polymer({
       this._zoomed = true;
     }
 
-    if (tf.graph.scene.panToNode(selectedNode, this.$.svg, this.$.root,
+    if (tfgraph.scene.panToNode(selectedNode, this.$.svg, this.$.root,
         this._zoom)) {
       this._zoomed = true;
     }

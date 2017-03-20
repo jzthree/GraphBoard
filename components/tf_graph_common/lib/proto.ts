@@ -20,7 +20,7 @@ limitations under the License.
  *     step_stats.proto
  * These should stay in sync.
  */
-module tf.graph.proto {
+module tfgraph.proto {
   /**
    * TensorFlow node definition as defined in the graph.proto file.
    */

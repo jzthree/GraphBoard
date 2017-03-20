@@ -457,23 +457,23 @@ limitations under the License.
           return null;
         },
         _getHasDisplayableNodeStats: function(stats) {
-          return tf.graph.util.hasDisplayableNodeStats(stats);
+          return tfgraph.util.hasDisplayableNodeStats(stats);
         },
         _getNodeStatsFormattedBytes: function(stats) {
           if (!stats || !stats.totalBytes) {
             return;
           }
 
-          return tf.graph.util.convertUnitsToHumanReadable(
-              stats.totalBytes, tf.graph.util.MEMORY_UNITS);
+          return tfgraph.util.convertUnitsToHumanReadable(
+              stats.totalBytes, tfgraph.util.MEMORY_UNITS);
         },
         _getNodeStatsFormattedComputeTime: function(stats) {
           if (!stats || !stats.totalMicros) {
             return;
           }
 
-          return tf.graph.util.convertUnitsToHumanReadable(
-              stats.totalMicros, tf.graph.util.TIME_UNITS);
+          return tfgraph.util.convertUnitsToHumanReadable(
+              stats.totalMicros, tfgraph.util.TIME_UNITS);
         },
         _getNodeStatsFormattedOutputSizes: function(stats) {
           if (!stats || !stats.outputSize || !stats.outputSize.length) {
@@ -504,7 +504,7 @@ limitations under the License.
           _.each(node.attr, function(entry) {
             // Unpack the "too large" attributes into separate attributes
             // in the info card, with values "too large to show".
-            if (entry.key === tf.graph.LARGE_ATTRS_KEY) {
+            if (entry.key === tfgraph.LARGE_ATTRS_KEY) {
               attrs = attrs.concat(entry.value.list.s.map(function(key) {
                 return {key: key, value: "Too large to show..."};
               }));
@@ -548,7 +548,7 @@ limitations under the License.
               return {
                 name: name,
                 node: this._getNode(name, this.graphHierarchy),
-                edgeLabel: tf.graph.scene.edge.getLabelForBaseEdge(baseEdge,
+                edgeLabel: tfgraph.scene.edge.getLabelForBaseEdge(baseEdge,
                     this.renderHierarchy),
                 renderInfo: this._getRenderInfo(name, this.renderHierarchy)
               };
@@ -571,7 +571,7 @@ limitations under the License.
                 edgeInfoList.push({
                   name: name,
                   node: this._getNode(name, this.graphHierarchy),
-                  edgeLabel: tf.graph.scene.edge.getLabelForEdge(metaedge,
+                  edgeLabel: tfgraph.scene.edge.getLabelForEdge(metaedge,
                       this.renderHierarchy),
                   renderInfo: this._getRenderInfo(name, this.renderHierarchy)
                 });
@@ -611,7 +611,7 @@ limitations under the License.
           this._openedControlSucc = false;
 
           this.set("_groupButtonText",
-            tf.graph.scene.node.getGroupSettingLabel(this._node));
+            tfgraph.scene.node.getGroupSettingLabel(this._node));
 
           if (this._node) {
             Polymer.dom(this.$.nodetitle).innerHTML =
@@ -632,15 +632,15 @@ limitations under the License.
         },
         _nodeIncludeStateChanged: function(include, oldInclude) {
           this.set("_auxButtonText",
-            tf.graph.getIncludeNodeButtonString(include));
+            tfgraph.getIncludeNodeButtonString(include));
         },
         _toggleGroup: function() {
           var graphElem = document.querySelector("#graph");
-          var seriesName = tf.graph.scene.node.getSeriesName(this._node);
+          var seriesName = tfgraph.scene.node.getSeriesName(this._node);
           graphElem.fire("node-toggle-seriesgroup", { name: seriesName });
         },
         _isInSeries: function(node) {
-          return tf.graph.scene.node.canBeInSeries(node);
+          return tfgraph.scene.node.canBeInSeries(node);
         }
       });
     })();

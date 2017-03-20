@@ -17,7 +17,7 @@ suite('parser', () => {
   let assert = chai.assert;
 
   test('simple pbtxt', done => {
-    let pbtxt = tf.graph.test.util.stringToArrayBuffer(`node {
+    let pbtxt = tfgraph.test.util.stringToArrayBuffer(`node {
        name: "Q"
        op: "Input"
      }
@@ -31,7 +31,7 @@ suite('parser', () => {
        input: "Q"
        input: "W"
      }`);
-    tf.graph.parser.parseGraphPbTxt(pbtxt).then(nodes => {
+    tfgraph.parser.parseGraphPbTxt(pbtxt).then(nodes => {
       assert.isTrue(nodes != null && nodes.length === 3);
 
       assert.equal('Q', nodes[0].name);
@@ -50,7 +50,7 @@ suite('parser', () => {
   });
 
   test('stats pbtxt parsing', done => {
-    let statsPbtxt = tf.graph.test.util.stringToArrayBuffer(`step_stats {
+    let statsPbtxt = tfgraph.test.util.stringToArrayBuffer(`step_stats {
       dev_stats {
         device: "cpu"
         node_stats {
@@ -65,7 +65,7 @@ suite('parser', () => {
         }
       }
     }`);
-    tf.graph.parser.parseStatsPbTxt(statsPbtxt).then(stepStats => {
+    tfgraph.parser.parseStatsPbTxt(statsPbtxt).then(stepStats => {
       assert.equal(stepStats.dev_stats.length, 1);
       assert.equal(stepStats.dev_stats[0].device, 'cpu');
       assert.equal(stepStats.dev_stats[0].node_stats.length, 2);

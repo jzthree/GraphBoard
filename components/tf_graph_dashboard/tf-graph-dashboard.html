@@ -131,7 +131,7 @@ Polymer({
           return {
             name: runName,
             path: backend.router.graph(
-                runName, tf.graph.LIMIT_ATTR_SIZE, tf.graph.LARGE_ATTRS_KEY),
+                runName, tfgraph.LIMIT_ATTR_SIZE, tfgraph.LARGE_ATTRS_KEY),
             runMetadata: runToMetadata[runName] ? _.map(
               runToMetadata[runName].sort(VZ.Sorting.compareTagNames), function(tag) {
                 return {

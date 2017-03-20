@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-module tf.graph.layout {
+module tfgraph.layout {
 
 /** Set of parameters that define the look and feel of the graph. */
 export const PARAMS = {
@@ -535,7 +535,7 @@ function layoutSeriesNode(node: render.RenderGroupNodeInfo): void {
  * Calculate layout for annotations of a given node.
  * This will modify positions of the given node and its annotations.
  *
- * @see tf.graph.render.Node and tf.graph.render.Annotation
+ * @see tfgraph.render.Node and tfgraph.render.Annotation
  * for description of each property of each render node.
  *
  */

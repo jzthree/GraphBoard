@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-module tf {
+module tfgraph {
   /**
    * Mapping from color palette name to color palette, which contains
    * exact colors for multiple states of a single color palette.

@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-module tf.graph.scene.edge {
+module tfgraph.scene.edge {
 
 /** Delimiter between dimensions when showing sizes of tensors. */
 const TENSOR_SHAPE_DELIM = '×';

@@ -12,13 +12,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-var tf;
-(function (tf) {
+var tfgraph;
+(function (tfgraph) {
     /**
      * Mapping from color palette name to color palette, which contains
      * exact colors for multiple states of a single color palette.
      */
-    tf.COLORS = [
+    tfgraph.COLORS = [
         {
             'name': 'Google Blue',
             'color': '#4184f3',
@@ -105,7 +105,7 @@ var tf;
      * Mapping from op category to color palette name
      * e.g.,  OP_GROUP_COLORS['state_ops'] = 'Google Blue';
      */
-    tf.OP_GROUP_COLORS = [
+    tfgraph.OP_GROUP_COLORS = [
         {
             color: 'Google Red',
             groups: [
@@ -126,4 +126,4 @@ var tf;
         c.groups.forEach(function (group) { m[group] = c.color; });
         return m;
     }, {});
-})(tf || (tf = {}));
+})(tfgraph || (tfgraph = {}));

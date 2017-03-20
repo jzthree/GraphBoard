@@ -17,7 +17,7 @@ limitations under the License.
  * @fileoverview Common interfaces for the tensorflow graph visualizer.
  */
 
-module tf {
+module tfgraph {
   /**
    * Tracks task progress. Each task being passed a progress tracker needs
    * to call the below-defined methods to notify the caller about the gradual
