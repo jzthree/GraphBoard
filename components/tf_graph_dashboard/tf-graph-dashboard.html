@@ -50,12 +50,10 @@ by default. The user can select a different run from a dropdown menu.
         render-hierarchy="[[_renderHierarchy]]"
         selected-dataset="{{_selectedDataset}}"
         selected-file="{{_selectedFile}}"
-        selected-metadata-tag="{{_selectedMetadataTag}}"
   ></tf-graph-controls>
   <tf-graph-loader id="loader"
         datasets="[[_datasets]]"
         selected-dataset="[[_selectedDataset]]"
-        selected-metadata-tag="[[_selectedMetadataTag]]"
         selected-file="[[_selectedFile]]"
         out-graph-hierarchy="{{_graphHierarchy}}"
         out-graph="{{_graph}}"
@@ -123,22 +121,14 @@ Polymer({
     // would not change across reloads.
   },
   _backendChanged: function(backend) {
-    Promise.all([backend.graphRuns(), backend.runMetadataRuns()])
+    Promise.all([backend.graphRuns()])
       .then(function(result) {
         var runsWithGraph = result[0].sort(VZ.Sorting.compareTagNames);
-        var runToMetadata = result[1];
         var datasets = _.map(runsWithGraph, function(runName) {
           return {
             name: runName,
             path: backend.router.graph(
                 runName, tfgraph.LIMIT_ATTR_SIZE, tfgraph.LARGE_ATTRS_KEY),
-            runMetadata: runToMetadata[runName] ? _.map(
-              runToMetadata[runName].sort(VZ.Sorting.compareTagNames), function(tag) {
-                return {
-                  tag: tag,
-                  path: backend.router.runMetadata(tag, runName)
-                };
-              }, this) : []
           };
         }, this);
         this.set('_datasets', datasets);

@@ -64,8 +64,6 @@ paper-button {
           selected-node="{{selectedNode}}"
           color-by="[[colorBy]]"
           progress="[[progress]]"
-          node-names-to-health-pills="[[nodeNamesToHealthPills]]"
-          health-pill-step-index="{{healthPillStepIndex}}"
     ></tf-graph-scene>
   </div>
 </div>
@@ -120,10 +118,6 @@ Polymer({
       type: Boolean,
       value: true
     },
-    // A mapping between node name to the tfgraph.scene.HealthPill to render.
-    nodeNamesToHealthPills: Object,
-    // The step of health pills to show throughout the graph.
-    healthPillStepIndex: Number,
   },
   observers: [
     '_statsChanged(stats, devicesForStats)',

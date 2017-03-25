@@ -36,10 +36,6 @@ var TF;
                 chai.assert.equal(actual, expected);
             });
         });
-        function assertIsDatum(x) {
-            chai.assert.isNumber(x.step);
-            chai.assert.instanceOf(x.wall_time, Date);
-        }
         describe('backend tests', function () {
             var backend;
             var rm;
@@ -58,52 +54,10 @@ var TF;
                     done();
                 });
             });
-            it('scalars are loaded properly', function (done) {
-                backend.scalar('cross_entropy (1)', 'run1').then(function (s) {
-                    // just check the data got reformatted properly
-                    var aScalar = s[s.length - 1];
-                    assertIsDatum(aScalar);
-                    chai.assert.isNumber(aScalar.scalar);
-                    // verify date conversion works
-                    chai.assert.equal(aScalar.wall_time.valueOf(), 40000);
-                    done();
-                });
-            });
-            it('histograms are loaded properly', function (done) {
-                backend.histogram('histo1', 'run1').then(function (histos) {
-                    var histo = histos[0];
-                    assertIsDatum(histo);
-                    chai.assert.instanceOf(histo.bins, Array);
-                    done();
-                });
-            });
             it('all registered types have handlers', function () {
                 Backend.TYPES.forEach(function (t) {
                     chai.assert.isDefined(backend[t], t);
                     chai.assert.isDefined(backend[t + 'Runs'], t + 'Runs');
-                });
-            });
-            it('images are loaded properly', function (done) {
-                backend.image('im1', 'run1').then(function (images) {
-                    var image = images[0];
-                    assertIsDatum(image);
-                    chai.assert.isNumber(image.width);
-                    chai.assert.isNumber(image.height);
-                    var nonDemoQuery = 'index=0&tag=im1&run=run1';
-                    var expectedUrl = demoRouter.individualImage(nonDemoQuery, 10.0);
-                    chai.assert.equal(image.url, expectedUrl);
-                    done();
-                });
-            });
-            it('audio is loaded properly', function (done) {
-                backend.audio('audio1', 'run1').then(function (audio_clips) {
-                    var audio = audio_clips[0];
-                    assertIsDatum(audio);
-                    chai.assert.equal(audio.content_type, 'audio/wav');
-                    var nonDemoQuery = 'index=0&tag=audio1&run=run1';
-                    var expectedUrl = demoRouter.individualAudio(nonDemoQuery);
-                    chai.assert.equal(audio.url, expectedUrl);
-                    done();
                 });
             });
             it('trailing slash removed from base route', function () {
@@ -123,22 +77,6 @@ var TF;
                         done();
                     }
                 }
-                backend.scalarRuns().then(function (x) {
-                    chai.assert.deepEqual(x, scalar);
-                    next();
-                });
-                backend.imageRuns().then(function (x) {
-                    chai.assert.deepEqual(x, image);
-                    next();
-                });
-                backend.audioRuns().then(function (x) {
-                    chai.assert.deepEqual(x, audio);
-                    next();
-                });
-                backend.runMetadataRuns().then(function (x) {
-                    chai.assert.deepEqual(x, runMetadata);
-                    next();
-                });
                 backend.graphRuns().then(function (x) {
                     chai.assert.deepEqual(x, graph);
                     next();
@@ -161,103 +99,6 @@ var TF;
                 chai.assert.deepEqual(Backend.getTags(empty1), []);
                 chai.assert.deepEqual(Backend.getRuns(empty2), ['run1', 'run2']);
                 chai.assert.deepEqual(Backend.getTags(empty2), []);
-            });
-        });
-        describe('Verify that the histogram format conversion works.', function () {
-            function assertHistogramEquality(h1, h2) {
-                h1.forEach(function (b1, i) {
-                    var b2 = h2[i];
-                    chai.assert.closeTo(b1.x, b2.x, 1e-10);
-                    chai.assert.closeTo(b1.dx, b2.dx, 1e-10);
-                    chai.assert.closeTo(b1.y, b2.y, 1e-10);
-                });
-            }
-            it('Throws and error if the inputs are of different lengths', function () {
-                chai.assert.throws(function () {
-                    Backend.convertBins({ bucketRightEdges: [0], bucketCounts: [1, 2], min: 1, max: 2 }, 1, 2, 2);
-                }, 'Edges and counts are of different lengths.');
-            });
-            it('Handles data with no bins', function () {
-                chai.assert.deepEqual(Backend.convertBins({ bucketRightEdges: [], bucketCounts: [], min: 0, max: 0 }, 0, 0, 0), []);
-            });
-            it('Handles data with one bin', function () {
-                var counts = [1];
-                var rightEdges = [1.21e-12];
-                var histogram = [{ x: 1.1e-12, dx: 1.21e-12 - 1.1e-12, y: 1 }];
-                var newHistogram = Backend.convertBins({
-                    bucketRightEdges: rightEdges,
-                    bucketCounts: counts,
-                    min: 1.1e-12,
-                    max: 1.21e-12
-                }, 1.1e-12, 1.21e-12, 1);
-                assertHistogramEquality(newHistogram, histogram);
-            });
-            it('Handles data with two bins.', function () {
-                var counts = [1, 2];
-                var rightEdges = [1.1e-12, 1.21e-12];
-                var histogram = [
-                    { x: 1.0e-12, dx: 1.05e-13, y: 1.09090909090909 },
-                    { x: 1.105e-12, dx: 1.05e-13, y: 1.9090909090909 }
-                ];
-                var newHistogram = Backend.convertBins({
-                    bucketRightEdges: rightEdges,
-                    bucketCounts: counts,
-                    min: 1.0e-12,
-                    max: 1.21e-12
-                }, 1.0e-12, 1.21e-12, 2);
-                assertHistogramEquality(newHistogram, histogram);
-            });
-            it('Handles a domain that crosses zero, but doesn\'t include zero as ' +
-                'an edge.', function () {
-                var counts = [1, 2];
-                var rightEdges = [-1.0e-12, 1.0e-12];
-                var histogram = [
-                    { x: -1.1e-12, dx: 1.05e-12, y: 1.95 },
-                    { x: -0.5e-13, dx: 1.05e-12, y: 1.05 }
-                ];
-                var newHistogram = Backend.convertBins({
-                    bucketRightEdges: rightEdges,
-                    bucketCounts: counts,
-                    min: -1.1e-12,
-                    max: 1.0e-12
-                }, -1.1e-12, 1.0e-12, 2);
-                assertHistogramEquality(newHistogram, histogram);
-            });
-            it('Handles a histogram of all zeros', function () {
-                var h = {
-                    min: 0,
-                    max: 0,
-                    nItems: 51200,
-                    sum: 0,
-                    sumSquares: 0,
-                    bucketRightEdges: [0, 1e-12, 1.7976931348623157e+308],
-                    bucketCounts: [0, 51200, 0],
-                    wall_time: '2017-01-25T02:30:11.257Z',
-                    step: 0
-                };
-                var newHistogram = Backend.convertBins(h, 0, 0, 5);
-                var expectedHistogram = [
-                    { x: -1, dx: 0.4, y: 0 }, { x: -0.6, dx: 0.4, y: 0 },
-                    { x: -0.2, dx: 0.4, y: 51200 }, { x: 0.2, dx: 0.4, y: 0 },
-                    { x: 0.6, dx: 0.4, y: 0 }
-                ];
-                assertHistogramEquality(newHistogram, expectedHistogram);
-            });
-            it('Handles a right-most right edge that extends to very large number.', function () {
-                var counts = [1, 2, 3];
-                var rightEdges = [0, 1.0e-12, 1.0e14];
-                var histogram = [
-                    { x: -1.0e-12, dx: 0.7e-12, y: 0.7 },
-                    { x: -0.3e-12, dx: 0.7e-12, y: 1.1 },
-                    { x: 0.4e-12, dx: 0.7e-12, y: 4.2 }
-                ];
-                var newHistogram = Backend.convertBins({
-                    bucketRightEdges: rightEdges,
-                    bucketCounts: counts,
-                    min: -1.0e-12,
-                    max: 1.1e-12
-                }, -1.0e-12, 1.1e-12, 3);
-                assertHistogramEquality(newHistogram, histogram);
             });
         });
     })(Backend = TF.Backend || (TF.Backend = {}));

@@ -275,19 +275,7 @@ table.tf-graph-controls td.input-element-table-data {
       </paper-menu>
     </paper-dropdown-menu>
   </div>
-  <template is="dom-if" if="[[showSessionRunsDropdown]]">
-    <div class="control-holder">
-      <div class="title">Session runs <span class="counter">([[_numSessionRuns(metadataTags)]])</span></div>
-      <paper-dropdown-menu no-label-float no-animations noink class="run-dropdown">
-        <paper-menu id="select" class="dropdown-content" selected="{{selectedMetadataTag}}">
-          <template is="dom-repeat" items="[[metadataTags]]">
-            <paper-item>[[item.tag]]</paper-item>
-          </template>
-          <paper-item>None</paper-item>
-        </paper-menu>
-      </paper-dropdown-menu>
-    </div>
-  </template>
+
   <template is="dom-if" if="[[showUploadButton]]">
     <div class="control-holder">
       <div class="title">Upload</div>
@@ -571,10 +559,6 @@ Polymer({
       type: Object,
       notify: true,
     },
-    metadataTags: {
-      type: Array,
-      computed: '_getMetadataTags(selectedDataset, datasets)'
-    },
     selectedDataset: {
       type: Number,
       notify: true,
@@ -585,31 +569,15 @@ Polymer({
       type: Object,
       notify: true
     },
-    selectedMetadataTag: {
-      type: Number,
-      notify: true,
-      value: -1
-    },
     _currentGradientParams: {
       type: Object,
       computed: '_getCurrentGradientParams(colorByParams, colorBy)'
-    },
-    showSessionRunsDropdown: {
-      type: Boolean,
-      value: true
     },
     showUploadButton: {
       type: Boolean,
       value: true
     },
-    // This stores whether the feature for showing health pills is enabled in the first place.
-    healthPillsFeatureEnabled: Boolean,
-    // This stores whether to show health pills. Only relevant if healthPillsFeatureEnabled. The
-    // user can toggle this value.
-    healthPillsToggledOn: {
-      type: Boolean,
-      notify: true,
-    },
+
   },
   listeners: {
     'trace-inputs.change': '_traceInputToggleChanged'
@@ -671,9 +639,6 @@ Polymer({
     }
     this.set('devicesForStats', devicesForStats);
   },
-  _numSessionRuns: function(metadataTags) {
-    return metadataTags != null ? metadataTags.length : 0;
-  },
   _getBackgroundColor: function(color) {
     return 'background-color:' + color;
   },
@@ -730,12 +695,8 @@ Polymer({
       this._setDownloadFilename(this.datasets[this.selectedDataset].path);
     }
   },
-  _getMetadataTags: function(selectedDataset, datasets) {
-    return this.datasets[selectedDataset].runMetadata;
-  },
   _selectedDatasetChanged: function(newDataset, oldDataset) {
     if (this.datasets) {
-      this.set('selectedMetadataTag', -1);
       this.set('colorBy', 'structure');
       this.$['trace-inputs'].active = false; // Set trace input to off-state.
       this._setDownloadFilename(this.datasets[newDataset].path);

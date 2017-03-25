@@ -16,15 +16,7 @@ module TF.Backend {
   export type RunTagUrlFn = (tag: string, run: string) => string;
 
   export interface Router {
-    logdir: () => string;
     runs: () => string;
-    scalars: RunTagUrlFn;
-    histograms: RunTagUrlFn;
-    compressedHistograms: RunTagUrlFn;
-    images: RunTagUrlFn;
-    individualImage: (query: string, wallTime: number) => string;
-    audio: RunTagUrlFn;
-    individualAudio: (query: string) => string;
     graph: (run: string, limit_attr_size?: number, large_attrs_key?: string)
         => string;
     runMetadata: RunTagUrlFn;
@@ -51,21 +43,6 @@ module TF.Backend {
         return url;
       };
     }
-    function individualImageUrl(query: string, wallTime: number) {
-      var url = dataDir + '/' + clean('individualImage?' + query);
-      // Include wall_time just to disambiguate the URL and force the browser
-      // to reload the image when the URL changes. The backend doesn't care
-      // about the value.
-      url += demoMode ? '.png' : '&ts=' + wallTime;
-      return url;
-    }
-    function individualAudioUrl(query: string) {
-      var url = dataDir + '/' + clean('individualAudio?' + query);
-      if (demoMode) {
-        url += '.wav';
-      }
-      return url;
-    }
     function graphUrl(run: string, limit_attr_size?: number,
         large_attrs_key?: string) {
       let query_params = [['run', clean(run)]];
@@ -87,16 +64,8 @@ module TF.Backend {
       return url;
     }
     return {
-      logdir: () => dataDir + '/logdir',
       runs: () => dataDir + '/runs' + (demoMode ? '.json' : ''),
-      individualImage: individualImageUrl,
-      individualAudio: individualAudioUrl,
       graph: graphUrl,
-      scalars: standardRoute('scalars'),
-      histograms: standardRoute('histograms'),
-      compressedHistograms: standardRoute('compressedHistograms'),
-      images: standardRoute('images'),
-      audio: standardRoute('audio'),
       runMetadata: standardRoute('run_metadata', '.pbtxt'),
     };
   };
