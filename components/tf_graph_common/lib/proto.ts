@@ -17,7 +17,6 @@ limitations under the License.
  * @fileoverview Interfaces that parallel proto definitions in
  * third_party/tensorflow/core/framework/...
  *     graph.proto
- *     step_stats.proto
  * These should stay in sync.
  */
 module tfgraph.proto {
@@ -71,42 +70,4 @@ module tfgraph.proto {
     metanode_attr: Array<{[key: string]: any}>;
   }
 
-
-  /**
-   * Description for the output tensor(s) of an operation in the graph as
-   * defined in the step_stats.proto file.
-   */
-  export interface NodeOutput {
-    slot: number;  // Stored as string in json and should be parsed.
-    tensor_description: {
-      /** Data type of tensor elements */
-      dtype: string;
-      /** Shape of the tensor */
-      shape: {
-        /**
-         * Dimensions of the tensor, such as [{name: 'input', size: 30},
-         * {name: 'output', size: 40}] for a 30 x 40 2D tensor.  The names
-         * are optional. The order of entries in 'dim' matters: It indicates
-         * the layout of the values in the tensor in-memory representation.
-         */
-        dim: {
-          /** Size of the tensor in that dimension */
-          size: number,  // Stored as string in json and should be parsed.
-          /** Optional name of the tensor dimension */
-          name?: string
-        }[];
-      };
-      /** Information about the size and allocator used for the data */
-      allocation_description: {
-        // The next 2 properties are stored as string in json and
-        // should be parsed.
-        /** Total number of bytes requested */
-        requested_bytes: number;
-        /** Total number of bytes allocated, if known */
-        allocated_bytes?: number;
-        /** Name of the allocator used */
-        allocator_name: string;
-      };
-    };
-  }
 }

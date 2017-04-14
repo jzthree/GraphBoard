@@ -100,7 +100,6 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_graph_.tfgraph.groupnode.html#bridgegraph" class="tsd-kind-icon">bridgegraph</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#cardinality" class="tsd-kind-icon">cardinality</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_graph_.tfgraph.groupnode.html#devicehistogram" class="tsd-kind-icon">device<wbr>Histogram</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="_graph_.tfgraph.groupnode.html#hasnoncontroledges" class="tsd-kind-icon">has<wbr>Non<wbr>Control<wbr>Edges</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#include" class="tsd-kind-icon">include</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#isgroupnode" class="tsd-kind-icon">is<wbr>Group<wbr>Node</a></li>
@@ -108,7 +107,6 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#name" class="tsd-kind-icon">name</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#nodeattributes" class="tsd-kind-icon">node<wbr>Attributes</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#parentnode" class="tsd-kind-icon">parent<wbr>Node</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#stats" class="tsd-kind-icon">stats</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited"><a href="_graph_.tfgraph.groupnode.html#type" class="tsd-kind-icon">type</a></li>
 							</ul>
 						</section>
@@ -123,7 +121,7 @@
 					<div class="tsd-signature tsd-kind-icon">bridgegraph<span class="tsd-signature-symbol">:</span> <a href="../classes/_externs_.graphlib.graph.html" class="tsd-signature-type">Graph</a><span class="tsd-signature-symbol">&lt;</span><a href="_graph_.tfgraph.groupnode.html" class="tsd-signature-type">GroupNode</a><span class="tsd-signature-symbol"> | </span><a href="_graph_.tfgraph.opnode.html" class="tsd-signature-type">OpNode</a><span class="tsd-signature-symbol">, </span><a href="_graph_.tfgraph.metaedge.html" class="tsd-signature-type">Metaedge</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L265">graph.ts:265</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L262">graph.ts:262</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -196,7 +194,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#cardinality">cardinality</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L109">graph.ts:109</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L109">graph.ts:109</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -208,36 +206,12 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="devicehistogram" class="tsd-anchor"></a>
-					<h3>device<wbr>Histogram</h3>
-					<div class="tsd-signature tsd-kind-icon">device<wbr>Histogram<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L271">graph.ts:271</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Stores how many times each device name appears in its children
-							op nodes. Used to color group nodes by devices.</p>
-						</div>
-					</div>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter-index-signature">
-								<h5><span class="tsd-signature-symbol">[</span>device: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">number</span></h5>
-							</li>
-						</ul>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="hasnoncontroledges" class="tsd-anchor"></a>
 					<h3>has<wbr>Non<wbr>Control<wbr>Edges</h3>
 					<div class="tsd-signature tsd-kind-icon">has<wbr>Non<wbr>Control<wbr>Edges<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L278">graph.ts:278</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L271">graph.ts:271</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -255,7 +229,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#include">include</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L122">graph.ts:122</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L120">graph.ts:120</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -274,7 +248,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#isgroupnode">isGroupNode</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L103">graph.ts:103</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L103">graph.ts:103</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -294,7 +268,7 @@
 					<div class="tsd-signature tsd-kind-icon">metagraph<span class="tsd-signature-symbol">:</span> <a href="../classes/_externs_.graphlib.graph.html" class="tsd-signature-type">Graph</a><span class="tsd-signature-symbol">&lt;</span><a href="_graph_.tfgraph.groupnode.html" class="tsd-signature-type">GroupNode</a><span class="tsd-signature-symbol"> | </span><a href="_graph_.tfgraph.opnode.html" class="tsd-signature-type">OpNode</a><span class="tsd-signature-symbol">, </span><a href="_graph_.tfgraph.metaedge.html" class="tsd-signature-type">Metaedge</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L192">graph.ts:192</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L189">graph.ts:189</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -314,7 +288,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#name">name</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L91">graph.ts:91</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L91">graph.ts:91</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -330,7 +304,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#nodeattributes">nodeAttributes</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L129">graph.ts:129</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L127">graph.ts:127</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -357,7 +331,7 @@
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#parentnode">parentNode</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L114">graph.ts:114</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L114">graph.ts:114</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -368,29 +342,13 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-					<a name="stats" class="tsd-anchor"></a>
-					<h3>stats</h3>
-					<div class="tsd-signature tsd-kind-icon">stats<span class="tsd-signature-symbol">:</span> <a href="../classes/_graph_.tfgraph.nodestats.html" class="tsd-signature-type">NodeStats</a></div>
-					<aside class="tsd-sources">
-						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#stats">stats</a></p>
-						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L116">graph.ts:116</a></li>
-						</ul>
-					</aside>
-					<div class="tsd-comment tsd-typography">
-						<div class="lead">
-							<p>Runtime execution stats for this node, if available</p>
-						</div>
-					</div>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 					<a name="type" class="tsd-anchor"></a>
 					<h3>type</h3>
 					<div class="tsd-signature tsd-kind-icon">type<span class="tsd-signature-symbol">:</span> <a href="../enums/_graph_.tfgraph.nodetype.html" class="tsd-signature-type">NodeType</a></div>
 					<aside class="tsd-sources">
 						<p>Inherited from <a href="_graph_.tfgraph.node.html">Node</a>.<a href="_graph_.tfgraph.node.html#type">type</a></p>
 						<ul>
-							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/754bb47/components/tf_graph_common/lib/graph.ts#L93">graph.ts:93</a></li>
+							<li>Defined in <a href="https://github.com/jzthree/GraphBoard/blob/dd653c83/components/tf_graph_common/lib/graph.ts#L93">graph.ts:93</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -479,9 +437,6 @@
 								<a href="_graph_.tfgraph.groupnode.html#cardinality" class="tsd-kind-icon">cardinality</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="_graph_.tfgraph.groupnode.html#devicehistogram" class="tsd-kind-icon">device<wbr>Histogram</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="_graph_.tfgraph.groupnode.html#hasnoncontroledges" class="tsd-kind-icon">has<wbr>Non<wbr>Control<wbr>Edges</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
@@ -501,9 +456,6 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 								<a href="_graph_.tfgraph.groupnode.html#parentnode" class="tsd-kind-icon">parent<wbr>Node</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
-								<a href="_graph_.tfgraph.groupnode.html#stats" class="tsd-kind-icon">stats</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited">
 								<a href="_graph_.tfgraph.groupnode.html#type" class="tsd-kind-icon">type</a>
