@@ -28,7 +28,6 @@ var tfgraph;
                 this.maxMetaEdgeSize = 1;
                 this.root = tfgraph.createMetanode(tfgraph.ROOT_NAME, { compound: true });
                 this.templates = null;
-                this.devices = null;
                 /**
                  * @type {Object} Dictionary object that maps node name to the node
                  * (could be op-node, metanode, or series-node)
@@ -318,14 +317,6 @@ var tfgraph;
             var seriesNames = {};
             return tfgraph.util
                 .runAsyncTask('Adding nodes', 20, function () {
-                // Get all the possible device names.
-                var deviceNames = {};
-                _.each(graph.nodes, function (node, nodeName) {
-                    if (node.device != null) {
-                        deviceNames[node.device] = true;
-                    }
-                });
-                h.devices = _.keys(deviceNames);
                 addNodes(h, graph);
             }, tracker)
                 .then(function () {
@@ -349,40 +340,6 @@ var tfgraph;
         }
         hierarchy_1.build = build;
         ;
-        function joinAndAggregateStats(h, stats) {
-            // Get all the possible device names.
-            var deviceNames = {};
-            _.each(h.root.leaves(), function (nodeName) {
-                var leaf = h.node(nodeName);
-                if (leaf.device != null) {
-                    deviceNames[leaf.device] = true;
-                }
-            });
-            h.devices = _.keys(deviceNames);
-            // Reset stats for each group node.
-            _.each(h.getNodeMap(), function (node, nodeName) {
-                if (node.isGroupNode) {
-                    node.stats = new tfgraph.NodeStats(null);
-                    node.deviceHistogram = {};
-                }
-            });
-            // Bubble-up the stats and device distribution from leaves to parents.
-            _.each(h.root.leaves(), function (nodeName) {
-                var leaf = h.node(nodeName);
-                var node = leaf;
-                while (node.parentNode != null) {
-                    if (leaf.device != null) {
-                        var deviceHistogram = node.parentNode.deviceHistogram;
-                        deviceHistogram[leaf.device] = (deviceHistogram[leaf.device] || 0) + 1;
-                    }
-                    if (leaf.stats != null) {
-                        node.parentNode.stats.combine(leaf.stats);
-                    }
-                    node = node.parentNode;
-                }
-            });
-        }
-        hierarchy_1.joinAndAggregateStats = joinAndAggregateStats;
         /**
          * Creates the metanodes in the hierarchical graph and assigns parent-child
          * relationship between them.
@@ -399,10 +356,6 @@ var tfgraph;
                     parent.depth = Math.max(parent.depth, path.length - i);
                     parent.cardinality += node.cardinality;
                     parent.opHistogram[node.op] = (parent.opHistogram[node.op] || 0) + 1;
-                    if (node.device != null) {
-                        parent.deviceHistogram[node.device] =
-                            (parent.deviceHistogram[node.device] || 0) + 1;
-                    }
                     if (i === path.length - 1) {
                         break;
                     }
@@ -552,10 +505,6 @@ var tfgraph;
                     seriesNode.metagraph.setNode(n, child);
                     seriesNode.parentNode = child.parentNode;
                     seriesNode.cardinality++;
-                    if (child.device != null) {
-                        seriesNode.deviceHistogram[child.device] =
-                            (seriesNode.deviceHistogram[child.device] || 0) + 1;
-                    }
                     child.parentNode = seriesNode;
                     seriesNames[n] = seriesName;
                     // Remove now-grouped node from its original parent's metagraph.
@@ -564,7 +513,7 @@ var tfgraph;
             });
         }
         ;
-        /** cluster op-nodes with similar op */
+        /** cluster op-nodes with same op */
         function clusterNodes(metagraph) {
             var result = {};
             return _.reduce(metagraph.nodes(), function (clusters, n) {

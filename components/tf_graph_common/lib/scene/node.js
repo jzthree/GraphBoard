@@ -455,9 +455,6 @@ var tfgraph;
                                 groupNodeInfo.node.hasNonControlEdges ? 'vertical' : 'horizontal';
                         }
                         var classList = [scene.Class.Node.COLOR_TARGET];
-                        if (groupNodeInfo.isFadedOut) {
-                            classList.push('faded-ellipse');
-                        }
                         scene.selectOrCreateChild(shapeGroup, 'use', classList)
                             .attr('xlink:href', '#op-series-' + stampType + '-stamp');
                         scene.selectOrCreateChild(shapeGroup, 'rect', scene.Class.Node.COLOR_TARGET)
@@ -555,9 +552,6 @@ var tfgraph;
             var ColorBy;
             (function (ColorBy) {
                 ColorBy[ColorBy["STRUCTURE"] = 0] = "STRUCTURE";
-                ColorBy[ColorBy["DEVICE"] = 1] = "DEVICE";
-                ColorBy[ColorBy["COMPUTE_TIME"] = 2] = "COMPUTE_TIME";
-                ColorBy[ColorBy["MEMORY"] = 3] = "MEMORY";
             })(ColorBy = node_1.ColorBy || (node_1.ColorBy = {}));
             ;
             /**
@@ -589,42 +583,6 @@ var tfgraph;
                             // Op nodes are white.
                             return 'white';
                         }
-                    case ColorBy.DEVICE:
-                        if (renderInfo.deviceColors == null) {
-                            // Return the hue for unknown device.
-                            return colorParams.UNKNOWN;
-                        }
-                        var id = renderInfo.node.name;
-                        var escapedId = tfgraph.util.escapeQuerySelector(id);
-                        var gradientDefs = d3.select('svg#svg defs #linearGradients');
-                        var linearGradient_1 = gradientDefs.select('linearGradient#' + escapedId);
-                        // If the linear gradient is not there yet, create it.
-                        if (linearGradient_1.size() === 0) {
-                            linearGradient_1 = gradientDefs.append('linearGradient').attr('id', id);
-                            // Re-create the stops of the linear gradient.
-                            linearGradient_1.selectAll('*').remove();
-                            var cumulativeProportion_1 = 0;
-                            // For each device, create a stop using the proportion of that device.
-                            _.each(renderInfo.deviceColors, function (d) {
-                                var color = d.color;
-                                linearGradient_1.append('stop')
-                                    .attr('offset', cumulativeProportion_1)
-                                    .attr('stop-color', color);
-                                linearGradient_1.append('stop')
-                                    .attr('offset', cumulativeProportion_1 + d.proportion)
-                                    .attr('stop-color', color);
-                                cumulativeProportion_1 += d.proportion;
-                            });
-                        }
-                        return isExpanded ? colorParams.EXPANDED_COLOR : "url(#" + escapedId + ")";
-                    case ColorBy.COMPUTE_TIME:
-                        return isExpanded ?
-                            colorParams.EXPANDED_COLOR : renderInfo.computeTimeColor ||
-                            colorParams.UNKNOWN;
-                    case ColorBy.MEMORY:
-                        return isExpanded ?
-                            colorParams.EXPANDED_COLOR : renderInfo.memoryColor ||
-                            colorParams.UNKNOWN;
                     default:
                         throw new Error('Unknown case to color nodes by');
                 }
@@ -640,12 +598,10 @@ var tfgraph;
                 var isSelected = sceneElement.isNodeSelected(renderInfo.node.name);
                 var isExtract = renderInfo.isInExtract || renderInfo.isOutExtract;
                 var isExpanded = renderInfo.expanded;
-                var isFadedOut = renderInfo.isFadedOut;
                 nodeGroup.classed('highlighted', isHighlighted);
                 nodeGroup.classed('selected', isSelected);
                 nodeGroup.classed('extract', isExtract);
                 nodeGroup.classed('expanded', isExpanded);
-                nodeGroup.classed('faded', isFadedOut);
                 // Main node always exists here and it will be reached before subscene,
                 // so d3 selection is fine here.
                 var node = nodeGroup.select('.' + nodeClass + ' .' + scene.Class.Node.COLOR_TARGET);

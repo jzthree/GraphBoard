@@ -112,8 +112,6 @@ export interface Node {
    * GroupNode because of embeddings, which will have a parent OpNode.
    */
   parentNode: Node;
-  /** Runtime execution stats for this node, if available */
-  stats: NodeStats;
   /** If the node is to be included or excluded from the main graph when
    *  rendered. Defaults to UNSPECIFIED, which means that the rendering
    *  algorithm determines if it will be included or not. Then can be set to
@@ -133,7 +131,6 @@ export type TensorShape = number[];
 
 export interface OpNode extends Node {
   op: string;
-  device: string;
   attr: {key: string, value: any}[];
   inputs: NormalizedInput[];
   inEmbeddings: OpNode[];
@@ -264,11 +261,7 @@ export interface GroupNode extends Node {
    */
   bridgegraph: graphlib.Graph<GroupNode|OpNode, Metaedge>;
 
-  /**
-   * Stores how many times each device name appears in its children
-   * op nodes. Used to color group nodes by devices.
-   */
-  deviceHistogram: {[device: string]: number};
+
 
   /**
    * Flag indicating whether this GroupNode's metagraph contains any edges that
@@ -300,7 +293,6 @@ export interface SeriesNode extends GroupNode {
 export class EllipsisNodeImpl implements EllipsisNode {
   name: string;
   numMoreNodes: number;
-  stats: NodeStats;
   type: NodeType;
   isGroupNode: boolean;
   cardinality: number;
@@ -317,7 +309,6 @@ export class EllipsisNodeImpl implements EllipsisNode {
     this.isGroupNode = false;
     this.cardinality = 1;
     this.parentNode = null;
-    this.stats = null;
     this.setNumMoreNodes(numNodes);
     this.include = InclusionType.UNSPECIFIED;
   }
@@ -335,8 +326,6 @@ export class EllipsisNodeImpl implements EllipsisNode {
 export class OpNodeImpl implements OpNode {
   name: string;
   op: string;
-  device: string;
-  stats: NodeStats;
   attr: {key: string, value: any}[];
   inputs: NormalizedInput[];
   type: NodeType;
@@ -358,7 +347,6 @@ export class OpNodeImpl implements OpNode {
   constructor(rawNode: tfgraph.proto.NodeDef) {
     this.op = rawNode.op;
     this.name = rawNode.name;
-    this.device = rawNode.device;
     this.attr = rawNode.attr;
     // An array of normalized inputs that denote the incoming edges to
     // the current node. Each input contains the normalized name of the
@@ -382,159 +370,10 @@ export function createMetanode(name: string, opt = {}): Metanode {
   return new MetanodeImpl(name, opt);
 }
 
-/**
- * Joins the information from the stats file (memory, compute time) with the
- * graph information.
- */
-export function joinStatsInfoWithGraph(
-    graph: SlimGraph, stats: tfgraph.proto.StepStats,
-    devicesForStats?: {[device: string]: boolean}): void {
-  // Reset stats for each node.
-  _.each(graph.nodes, node => { node.stats = null; });
 
-  _.each(stats.dev_stats, devStats => {
-    // Ignore devices that are not selected.
-    if (devicesForStats && !devicesForStats[devStats.device]) {
-      return;
-    }
-    _.each(devStats.node_stats, nodeStats => {
-      // Lookup the node in the graph by its original name, e.g. A. If not
-      // found, lookup by the rewritten name A/(A) in case the name is both
-      // a namespace and a node name.
-      let nodeName = nodeStats.node_name in graph.nodes ? nodeStats.node_name :
-                                                          nodeStats.node_name +
-              NAMESPACE_DELIM + '(' + nodeStats.node_name + ')';
-
-      // Couldn't find a matching node.
-      if (!(nodeName in graph.nodes)) {
-        return;
-      }
-
-      // Compute the total bytes used.
-      let totalBytes = 0;
-      if (nodeStats.memory) {
-        _.each(nodeStats.memory, alloc => {
-        if (alloc.total_bytes) {
-            if (alloc.total_bytes > 0) {
-              totalBytes += Number(alloc.total_bytes);
-            } else {
-              /* tslint:disable */
-              console.log(
-                  'ignoring negative memory allocation for ' + nodeName);
-              /* tslint:enable */
-            }
-          }
-        });
-      }
-      let outputSize: number[][] = null;
-      if (nodeStats.output) {
-        outputSize = _.map(nodeStats.output, output => {
-          return _.map(output.tensor_description.shape.dim,
-              dim => Number(dim.size));
-        });
-      }
-      graph.nodes[nodeName].device = devStats.device;
-      if (graph.nodes[nodeName].stats == null) {
-        graph.nodes[nodeName].stats = new NodeStats(outputSize);
-      }
-      graph.nodes[nodeName].stats.addBytesAllocation(totalBytes);
-      if (nodeStats.all_end_rel_micros) {
-        if (nodeStats.all_end_rel_micros > 0) {
-          graph.nodes[nodeName].stats.addExecutionTime(
-              nodeStats.all_start_micros,
-              nodeStats.all_start_micros + nodeStats.all_end_rel_micros);
-        } else {
-          /* tslint:disable */
-          console.log('ignoring negative runtime for ' + nodeName);
-          /* tslint:enable */
-        }
-      }
-    });
-  });
-}
-
-/**
- * Execution stats for the node.
- */
-export class NodeStats {
-  constructor(outputSize: number[][]) { this.outputSize = outputSize; }
-
-  /**
-   * Add the start and end time for a particular kernel execution of this op.
-   * Ops can have multiple kernel executions within the same session run.
-   */
-  addExecutionTime(startTime: number, endTime: number) {
-    if (this.startTime != null) {
-      this.startTime = Math.min(this.startTime, startTime);
-    } else {
-      this.startTime = startTime;
-    }
-    if (this.endTime != null) {
-      this.endTime = Math.max(this.endTime, endTime);
-    } else {
-      this.endTime = endTime;
-    }
-  }
-
-  /**
-   * Add the bytes allocated for a particular kernel execution of this op.
-   * Ops can have multiple kernel executions within the same session run.
-   */
-  addBytesAllocation(totalBytes: number) {
-    if (this.totalBytes != null) {
-      this.totalBytes = Math.max(this.totalBytes, totalBytes);
-    } else {
-      this.totalBytes = totalBytes;
-    }
-  }
-
-  /**
-   * Absolute start time for the very first kernel execution of this op.
-   */
-  startTime: number;
-  /**
-   * Absolute end time for the very last kernel execution of this op.
-   */
-  endTime: number;
-  /**
-   * Total number of bytes used for the node. Sum of all children
-   * if it is a Group node.
-   */
-  totalBytes = 0;
-  /**
-   * Total number of compute time in microseconds used for the node.
-   * Sum of all children if it is a Group node. Null if it is unknown.
-   */
-  get totalMicros(): number {
-    if (this.startTime == null || this.endTime == null) {
-      return null;
-    }
-    return this.endTime - this.startTime;
-  }
-  /**
-   * The shape of each output tensors, if there are any.
-   * Empty if it is a Group node.
-   */
-  outputSize: number[][];
-
-  /**
-   * Combines the specified stats with the current stats.
-   * Modifies the current object. This method is used to
-   * compute aggregate stats for group nodes.
-   */
-  combine(stats: NodeStats): void {
-    if (stats.totalBytes != null) {
-      this.totalBytes += stats.totalBytes;
-    }
-    if (stats.totalMicros != null) {
-      this.addExecutionTime(stats.startTime, stats.endTime);
-    }
-  }
-}
 
 export class MetanodeImpl implements Metanode {
   name: string;
-  stats: NodeStats;
   type: NodeType;
   depth: number;
   isGroupNode: boolean;
@@ -543,7 +382,6 @@ export class MetanodeImpl implements Metanode {
   bridgegraph: graphlib.Graph<GroupNode|OpNode, Metaedge>;
   templateId: string;
   opHistogram: {[op: string]: number};
-  deviceHistogram: {[op: string]: number};
   parentNode: Node;
   hasNonControlEdges: boolean;
   include: InclusionType;
@@ -570,7 +408,6 @@ export class MetanodeImpl implements Metanode {
      * (op type => count).
      */
     this.opHistogram = {};
-    this.deviceHistogram = {};
     /** unique id for a metanode of similar subgraph */
     this.templateId = null;
     /** Metanode which contains this node, if any */
@@ -756,7 +593,6 @@ export function getSeriesNodeName(prefix: string, suffix: string,
 class SeriesNodeImpl implements SeriesNode {
   name: string;
   type: NodeType;
-  stats: NodeStats;
   hasLoop: boolean;
   prefix: string;
   suffix: string;
@@ -768,7 +604,6 @@ class SeriesNodeImpl implements SeriesNode {
   metagraph: graphlib.Graph<GroupNode|OpNode, Metaedge>;
   bridgegraph: graphlib.Graph<GroupNode|OpNode, Metaedge>;
   parentNode: Node;
-  deviceHistogram: {[op: string]: number};
   hasNonControlEdges: boolean;
   include: InclusionType;
   nodeAttributes: {[key: string]: any;};
@@ -789,7 +624,6 @@ class SeriesNodeImpl implements SeriesNode {
     // bridgegraph must be constructed lazily-see hierarchy.getBridgegraph()
     this.bridgegraph = null;
     this.parentNode = null;
-    this.deviceHistogram = {};
     this.hasNonControlEdges = false;
     this.include = InclusionType.UNSPECIFIED;
   }

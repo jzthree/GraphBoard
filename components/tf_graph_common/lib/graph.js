@@ -87,7 +87,6 @@ var tfgraph;
             this.isGroupNode = false;
             this.cardinality = 1;
             this.parentNode = null;
-            this.stats = null;
             this.setNumMoreNodes(numNodes);
             this.include = InclusionType.UNSPECIFIED;
         }
@@ -112,7 +111,6 @@ var tfgraph;
         function OpNodeImpl(rawNode) {
             this.op = rawNode.op;
             this.name = rawNode.name;
-            this.device = rawNode.device;
             this.attr = rawNode.attr;
             // An array of normalized inputs that denote the incoming edges to
             // the current node. Each input contains the normalized name of the
@@ -139,140 +137,6 @@ var tfgraph;
         return new MetanodeImpl(name, opt);
     }
     tfgraph.createMetanode = createMetanode;
-    /**
-     * Joins the information from the stats file (memory, compute time) with the
-     * graph information.
-     */
-    function joinStatsInfoWithGraph(graph, stats, devicesForStats) {
-        // Reset stats for each node.
-        _.each(graph.nodes, function (node) { node.stats = null; });
-        _.each(stats.dev_stats, function (devStats) {
-            // Ignore devices that are not selected.
-            if (devicesForStats && !devicesForStats[devStats.device]) {
-                return;
-            }
-            _.each(devStats.node_stats, function (nodeStats) {
-                // Lookup the node in the graph by its original name, e.g. A. If not
-                // found, lookup by the rewritten name A/(A) in case the name is both
-                // a namespace and a node name.
-                var nodeName = nodeStats.node_name in graph.nodes ? nodeStats.node_name :
-                    nodeStats.node_name +
-                        tfgraph.NAMESPACE_DELIM + '(' + nodeStats.node_name + ')';
-                // Couldn't find a matching node.
-                if (!(nodeName in graph.nodes)) {
-                    return;
-                }
-                // Compute the total bytes used.
-                var totalBytes = 0;
-                if (nodeStats.memory) {
-                    _.each(nodeStats.memory, function (alloc) {
-                        if (alloc.total_bytes) {
-                            if (alloc.total_bytes > 0) {
-                                totalBytes += Number(alloc.total_bytes);
-                            }
-                            else {
-                                /* tslint:disable */
-                                console.log('ignoring negative memory allocation for ' + nodeName);
-                            }
-                        }
-                    });
-                }
-                var outputSize = null;
-                if (nodeStats.output) {
-                    outputSize = _.map(nodeStats.output, function (output) {
-                        return _.map(output.tensor_description.shape.dim, function (dim) { return Number(dim.size); });
-                    });
-                }
-                graph.nodes[nodeName].device = devStats.device;
-                if (graph.nodes[nodeName].stats == null) {
-                    graph.nodes[nodeName].stats = new NodeStats(outputSize);
-                }
-                graph.nodes[nodeName].stats.addBytesAllocation(totalBytes);
-                if (nodeStats.all_end_rel_micros) {
-                    if (nodeStats.all_end_rel_micros > 0) {
-                        graph.nodes[nodeName].stats.addExecutionTime(nodeStats.all_start_micros, nodeStats.all_start_micros + nodeStats.all_end_rel_micros);
-                    }
-                    else {
-                        /* tslint:disable */
-                        console.log('ignoring negative runtime for ' + nodeName);
-                    }
-                }
-            });
-        });
-    }
-    tfgraph.joinStatsInfoWithGraph = joinStatsInfoWithGraph;
-    /**
-     * Execution stats for the node.
-     */
-    var NodeStats = (function () {
-        function NodeStats(outputSize) {
-            /**
-             * Total number of bytes used for the node. Sum of all children
-             * if it is a Group node.
-             */
-            this.totalBytes = 0;
-            this.outputSize = outputSize;
-        }
-        /**
-         * Add the start and end time for a particular kernel execution of this op.
-         * Ops can have multiple kernel executions within the same session run.
-         */
-        NodeStats.prototype.addExecutionTime = function (startTime, endTime) {
-            if (this.startTime != null) {
-                this.startTime = Math.min(this.startTime, startTime);
-            }
-            else {
-                this.startTime = startTime;
-            }
-            if (this.endTime != null) {
-                this.endTime = Math.max(this.endTime, endTime);
-            }
-            else {
-                this.endTime = endTime;
-            }
-        };
-        /**
-         * Add the bytes allocated for a particular kernel execution of this op.
-         * Ops can have multiple kernel executions within the same session run.
-         */
-        NodeStats.prototype.addBytesAllocation = function (totalBytes) {
-            if (this.totalBytes != null) {
-                this.totalBytes = Math.max(this.totalBytes, totalBytes);
-            }
-            else {
-                this.totalBytes = totalBytes;
-            }
-        };
-        Object.defineProperty(NodeStats.prototype, "totalMicros", {
-            /**
-             * Total number of compute time in microseconds used for the node.
-             * Sum of all children if it is a Group node. Null if it is unknown.
-             */
-            get: function () {
-                if (this.startTime == null || this.endTime == null) {
-                    return null;
-                }
-                return this.endTime - this.startTime;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        /**
-         * Combines the specified stats with the current stats.
-         * Modifies the current object. This method is used to
-         * compute aggregate stats for group nodes.
-         */
-        NodeStats.prototype.combine = function (stats) {
-            if (stats.totalBytes != null) {
-                this.totalBytes += stats.totalBytes;
-            }
-            if (stats.totalMicros != null) {
-                this.addExecutionTime(stats.startTime, stats.endTime);
-            }
-        };
-        return NodeStats;
-    }());
-    tfgraph.NodeStats = NodeStats;
     var MetanodeImpl = (function () {
         /** A label object for meta-nodes in the graph hierarchy */
         function MetanodeImpl(name, opt) {
@@ -296,7 +160,6 @@ var tfgraph;
              * (op type => count).
              */
             this.opHistogram = {};
-            this.deviceHistogram = {};
             /** unique id for a metanode of similar subgraph */
             this.templateId = null;
             /** Metanode which contains this node, if any */
@@ -436,7 +299,6 @@ var tfgraph;
             // bridgegraph must be constructed lazily-see hierarchy.getBridgegraph()
             this.bridgegraph = null;
             this.parentNode = null;
-            this.deviceHistogram = {};
             this.hasNonControlEdges = false;
             this.include = InclusionType.UNSPECIFIED;
         }

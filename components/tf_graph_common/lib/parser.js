@@ -59,13 +59,7 @@ var tfgraph;
                     return Promise.resolve(null);
                 }
                 return fetchPbTxt(path);
-            }, tracker)
-                .then(function (arrayBuffer) {
-                return tfgraph.util.runAsyncPromiseTask('Parsing metadata.pbtxt', 60, function () {
-                    return arrayBuffer != null ? parseStatsPbTxt(arrayBuffer) :
-                        Promise.resolve(null);
-                }, tracker);
-            });
+            }, tracker);
         }
         parser.fetchAndParseMetadata = fetchAndParseMetadata;
         /**
@@ -145,6 +139,7 @@ var tfgraph;
         }
         parser.streamParse = streamParse;
         /**
+         * TODO: REMOVE THIS
          * Since proto-txt doesn't explicitly say whether an attribute is repeated
          * (an array) or not, we keep a hard-coded list of attributes that are known
          * to be repeated. This list is used in parsing time to convert repeated
@@ -163,13 +158,6 @@ var tfgraph;
             'node.attr.value.list.shape.dim': true,
             'node.attr.value.list.s': true
         };
-        var METADATA_REPEATED_FIELDS = {
-            'step_stats.dev_stats': true,
-            'step_stats.dev_stats.node_stats': true,
-            'step_stats.dev_stats.node_stats.output': true,
-            'step_stats.dev_stats.node_stats.memory': true,
-            'step_stats.dev_stats.node_stats.output.tensor_description.shape.dim': true
-        };
         /**
          * Parses an ArrayBuffer of a proto txt file into a raw Graph object.
          */
@@ -177,14 +165,6 @@ var tfgraph;
             return parsePbtxtFile(input, GRAPH_REPEATED_FIELDS).then(function (obj) { return obj['node']; });
         }
         parser.parseGraphPbTxt = parseGraphPbTxt;
-        /**
-         * Parses an ArrayBuffer of a proto txt file into a StepStats object.
-         */
-        function parseStatsPbTxt(input) {
-            return parsePbtxtFile(input, METADATA_REPEATED_FIELDS)
-                .then(function (obj) { return obj['step_stats']; });
-        }
-        parser.parseStatsPbTxt = parseStatsPbTxt;
         /**
          * Parses a ArrayBuffer of a proto txt file into javascript object.
          *

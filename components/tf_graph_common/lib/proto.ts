@@ -29,8 +29,6 @@ module tfgraph.proto {
     name: string;
     /** List of nodes that are inputs for this node. */
     input: string[];
-    /** The name of the device where the computation will run. */
-    device: string;
     /** The name of the operation associated with this node. */
     op: string;
     /** List of attributes that describe/modify the operation. */
@@ -73,35 +71,6 @@ module tfgraph.proto {
     metanode_attr: Array<{[key: string]: any}>;
   }
 
-  /**
-   * TensorFlow stats file definition as defined in the stats proto file.
-   */
-  export interface StepStats {
-    dev_stats: {device: string, node_stats: NodeExecStats[]}[];
-  }
-
-  /**
-   * TensorFlow stats for a node as defined in the step_stats proto file.
-   */
-  export interface NodeExecStats {
-    node_name: string;
-    // The next 4 properties are currently stored as string in json
-    // and must be parsed.
-    all_start_micros: number;
-    op_start_rel_micros: number;
-    op_end_rel_micros: number;
-    all_end_rel_micros: number;
-    memory: {
-      allocator_name: string;
-      total_bytes: number;  // Stored as string in json and should be parsed.
-      peak_bytes: number;   // Stored as string in json and should be parsed.
-    }[];
-    /** Output sizes recorded for a single execution of a graph node */
-    output: NodeOutput[];
-    timeline_label: string;
-    scheduled_micros: string;
-    thread_id: string;
-  }
 
   /**
    * Description for the output tensor(s) of an operation in the graph as

@@ -304,7 +304,6 @@ var tfgraph;
              * d's label property will be a RenderMetaedgeInfo object.
              */
             function stylize(edgeGroup, d, stylize) {
-                edgeGroup.classed('faded', d.label.isFadedOut);
                 var metaedge = d.label.metaedge;
                 edgeGroup.select('path.' + scene.Class.Edge.LINE)
                     .classed('control-dep', metaedge && !metaedge.numRegularEdges);

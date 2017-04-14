@@ -182,46 +182,6 @@ var tfgraph;
             return querySelector.replace(/([:.\[\],/\\\(\)])/g, '\\$1');
         }
         util.escapeQuerySelector = escapeQuerySelector;
-        // For unit conversion.
-        util.MEMORY_UNITS = [
-            // Atomic unit.
-            { symbol: 'B' },
-            // numUnits specifies how many previous units this unit contains.
-            { symbol: 'KB', numUnits: 1024 }, { symbol: 'MB', numUnits: 1024 },
-            { symbol: 'GB', numUnits: 1024 }, { symbol: 'TB', numUnits: 1024 },
-            { symbol: 'PB', numUnits: 1024 }
-        ];
-        util.TIME_UNITS = [
-            // Atomic unit. Finest granularity in TensorFlow stat collection.
-            { symbol: 'µs' },
-            // numUnits specifies how many previous units this unit contains.
-            { symbol: 'ms', numUnits: 1000 }, { symbol: 's', numUnits: 1000 },
-            { symbol: 'min', numUnits: 60 }, { symbol: 'hr', numUnits: 60 },
-            { symbol: 'days', numUnits: 24 }
-        ];
-        /**
-         * Returns the human readable version of the unit.
-         * (e.g. 1.35 GB, 23 MB, 34 ms, 6.53 min etc).
-         */
-        function convertUnitsToHumanReadable(value, units, unitIndex) {
-            unitIndex = unitIndex == null ? 0 : unitIndex;
-            if (unitIndex + 1 < units.length &&
-                value >= units[unitIndex + 1].numUnits) {
-                return tfgraph.util.convertUnitsToHumanReadable(value / units[unitIndex + 1].numUnits, units, unitIndex + 1);
-            }
-            // toPrecision() has the tendency to return a number in scientific
-            // notation and (number - 0) brings it back to normal notation.
-            return (value.toPrecision(3) - 0) + ' ' + units[unitIndex].symbol;
-        }
-        util.convertUnitsToHumanReadable = convertUnitsToHumanReadable;
-        function hasDisplayableNodeStats(stats) {
-            if (stats &&
-                (stats.totalBytes > 0 || stats.totalMicros > 0 || stats.outputSize)) {
-                return true;
-            }
-            return false;
-        }
-        util.hasDisplayableNodeStats = hasDisplayableNodeStats;
         /**
          * Given a list of strings, it returns a new list of strings with the longest
          * common prefix removed. If the common prefix is one of the strings in the

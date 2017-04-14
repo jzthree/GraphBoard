@@ -34,21 +34,7 @@ suite('graph', () => {
         input: "Q:2"
         input: "W"
       }`);
-    let statsPbtxt = tfgraph.test.util.stringToArrayBuffer(`step_stats {
-      dev_stats {
-        device: "cpu"
-        node_stats {
-          node_name: "Q"
-          all_start_micros: 10
-          all_end_rel_micros: 4
-        }
-        node_stats {
-          node_name: "Q"
-          all_start_micros: 12
-          all_end_rel_micros: 4
-        }
-      }
-    }`);
+
 
     let buildParams: tfgraph.BuildParams = {
       enableEmbedding: true,
@@ -73,11 +59,6 @@ suite('graph', () => {
             assert.equal(secondInputOfX.name, 'W');
             assert.equal(secondInputOfX.outputTensorIndex, 0);
 
-            tfgraph.parser.parseStatsPbTxt(statsPbtxt).then(stepStats => {
-              tfgraph.joinStatsInfoWithGraph(slimGraph, stepStats);
-              assert.equal(slimGraph.nodes['Q'].stats.totalMicros, 6);
-              done();
-            });
           });
     });
   });

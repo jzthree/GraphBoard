@@ -499,9 +499,6 @@ export function buildShape(nodeGroup, d, nodeClass: string) {
             groupNodeInfo.node.hasNonControlEdges ? 'vertical' : 'horizontal';
       }
       let classList = [Class.Node.COLOR_TARGET];
-      if (groupNodeInfo.isFadedOut) {
-        classList.push('faded-ellipse');
-      }
       scene.selectOrCreateChild(shapeGroup, 'use', classList)
           .attr('xlink:href', '#op-series-' + stampType + '-stamp');
       scene.selectOrCreateChild(shapeGroup, 'rect', Class.Node.COLOR_TARGET)
@@ -591,7 +588,7 @@ function position(nodeGroup, d: render.RenderNodeInfo) {
 };
 
 /** Enum specifying the options to color nodes by */
-export enum ColorBy { STRUCTURE, DEVICE, COMPUTE_TIME, MEMORY };
+export enum ColorBy { STRUCTURE};
 
 /**
  * Returns the fill color for the node given its state and the 'color by'
@@ -620,42 +617,6 @@ export function getFillForNode(templateIndex, colorBy,
         // Op nodes are white.
         return 'white';
       }
-    case ColorBy.DEVICE:
-      if (renderInfo.deviceColors == null) {
-        // Return the hue for unknown device.
-        return colorParams.UNKNOWN;
-      }
-      let id = renderInfo.node.name;
-      let escapedId = tfgraph.util.escapeQuerySelector(id);
-      let gradientDefs = d3.select('svg#svg defs #linearGradients');
-      let linearGradient = gradientDefs.select('linearGradient#' + escapedId);
-      // If the linear gradient is not there yet, create it.
-      if (linearGradient.size() === 0) {
-        linearGradient = gradientDefs.append('linearGradient').attr('id', id);
-        // Re-create the stops of the linear gradient.
-        linearGradient.selectAll('*').remove();
-        let cumulativeProportion = 0;
-        // For each device, create a stop using the proportion of that device.
-        _.each(renderInfo.deviceColors, d => {
-          let color = d.color;
-          linearGradient.append('stop')
-              .attr('offset', cumulativeProportion)
-              .attr('stop-color', color);
-          linearGradient.append('stop')
-              .attr('offset', cumulativeProportion + d.proportion)
-              .attr('stop-color', color);
-          cumulativeProportion += d.proportion;
-        });
-      }
-      return isExpanded ? colorParams.EXPANDED_COLOR : `url(#${escapedId})`;
-    case ColorBy.COMPUTE_TIME:
-      return isExpanded ?
-        colorParams.EXPANDED_COLOR : renderInfo.computeTimeColor ||
-        colorParams.UNKNOWN;
-    case ColorBy.MEMORY:
-      return isExpanded ?
-        colorParams.EXPANDED_COLOR : renderInfo.memoryColor ||
-        colorParams.UNKNOWN;
     default:
       throw new Error('Unknown case to color nodes by');
   }
@@ -672,12 +633,10 @@ export function stylize(nodeGroup, renderInfo: render.RenderNodeInfo,
   let isSelected = sceneElement.isNodeSelected(renderInfo.node.name);
   let isExtract = renderInfo.isInExtract || renderInfo.isOutExtract;
   let isExpanded = renderInfo.expanded;
-  let isFadedOut = renderInfo.isFadedOut;
   nodeGroup.classed('highlighted', isHighlighted);
   nodeGroup.classed('selected', isSelected);
   nodeGroup.classed('extract', isExtract);
   nodeGroup.classed('expanded', isExpanded);
-  nodeGroup.classed('faded', isFadedOut);
 
   // Main node always exists here and it will be reached before subscene,
   // so d3 selection is fine here.

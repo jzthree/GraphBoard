@@ -64,13 +64,6 @@ export function fetchAndParseMetadata(path: string, tracker: ProgressTracker) {
             return fetchPbTxt(path);
           },
           tracker)
-      .then((arrayBuffer: ArrayBuffer) => {
-        return tfgraph.util.runAsyncPromiseTask(
-            'Parsing metadata.pbtxt', 60, () => {
-              return arrayBuffer != null ? parseStatsPbTxt(arrayBuffer) :
-                                           Promise.resolve(null);
-            }, tracker);
-      });
 }
 
 /**
@@ -157,6 +150,7 @@ export function streamParse(
 }
 
 /**
+ * TODO: REMOVE THIS
  * Since proto-txt doesn't explicitly say whether an attribute is repeated
  * (an array) or not, we keep a hard-coded list of attributes that are known
  * to be repeated. This list is used in parsing time to convert repeated
@@ -176,13 +170,6 @@ const GRAPH_REPEATED_FIELDS: {[attrPath: string]: boolean} = {
   'node.attr.value.list.s': true
 };
 
-const METADATA_REPEATED_FIELDS: {[attrPath: string]: boolean} = {
-  'step_stats.dev_stats': true,
-  'step_stats.dev_stats.node_stats': true,
-  'step_stats.dev_stats.node_stats.output': true,
-  'step_stats.dev_stats.node_stats.memory': true,
-  'step_stats.dev_stats.node_stats.output.tensor_description.shape.dim': true
-};
 
 /**
  * Parses an ArrayBuffer of a proto txt file into a raw Graph object.
@@ -192,14 +179,7 @@ export function parseGraphPbTxt(input: ArrayBuffer):
   return parsePbtxtFile(input, GRAPH_REPEATED_FIELDS).then(obj => obj['node']);
 }
 
-/**
- * Parses an ArrayBuffer of a proto txt file into a StepStats object.
- */
-export function parseStatsPbTxt(input: ArrayBuffer):
-    Promise<tfgraph.proto.StepStats> {
-  return parsePbtxtFile(input, METADATA_REPEATED_FIELDS)
-      .then(obj => obj['step_stats']);
-}
+
 
 /**
  * Parses a ArrayBuffer of a proto txt file into javascript object.

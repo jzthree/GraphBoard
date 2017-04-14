@@ -29,18 +29,6 @@ suite('parser', function () {
             done();
         });
     });
-    test('stats pbtxt parsing', function (done) {
-        var statsPbtxt = tfgraph.test.util.stringToArrayBuffer("step_stats {\n      dev_stats {\n        device: \"cpu\"\n        node_stats {\n          node_name: \"Q\"\n          all_start_micros: 10\n          all_end_rel_micros: 4\n        }\n        node_stats {\n          node_name: \"Q\"\n          all_start_micros: 12\n          all_end_rel_micros: 4\n        }\n      }\n    }");
-        tfgraph.parser.parseStatsPbTxt(statsPbtxt).then(function (stepStats) {
-            assert.equal(stepStats.dev_stats.length, 1);
-            assert.equal(stepStats.dev_stats[0].device, 'cpu');
-            assert.equal(stepStats.dev_stats[0].node_stats.length, 2);
-            assert.equal(stepStats.dev_stats[0].node_stats[0].all_start_micros, 10);
-            assert.equal(stepStats.dev_stats[0].node_stats[1].node_name, 'Q');
-            assert.equal(stepStats.dev_stats[0].node_stats[1].all_end_rel_micros, 4);
-            done();
-        });
-    });
     test('d3 exists', function () { assert.isTrue(d3 != null); });
     // TODO(nsthorat): write tests.
 });

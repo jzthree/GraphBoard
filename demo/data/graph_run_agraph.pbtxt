@@ -4845,6 +4845,10 @@ node {
       type: DT_FLOAT
     }
   }
+  attr {
+    key: "Gene ID"
+    value: "GENEID12345"
+  }
 }
 versions {
   producer: 21

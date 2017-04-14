@@ -102,23 +102,10 @@ Polymer({
   ],
   properties: {
     _datasets: Object,
-    _renderHierarchy: {type: Object, observer: '_renderHierarchyChanged'},
+    _renderHierarchy: Object,
     backend: {type: Object, observer: '_backendChanged'},
     debuggerDataEnabled: Boolean,
     runs: Array
-  },
-  reload: function() {
-    if (!this.debuggerDataEnabled ||
-        !this._renderHierarchy ||
-        this._datasetsEmpty(this._datasets)) {
-      // Do not load debugger data if the feature is disabled, if the user toggled off the feature,
-      // or if the graph itself has not loaded yet. We need the graph to load so that we know which
-      // nodes to request health pills for.
-      return;
-    }
-
-    // Request debugger data on graph reloads, but do not re-request the graph itself. The graph
-    // would not change across reloads.
   },
   _backendChanged: function(backend) {
     Promise.all([backend.graphRuns()])
@@ -136,11 +123,6 @@ Polymer({
   },
   _datasetsEmpty: function(datasets) {
     return !datasets || !datasets.length;
-  },
-  _renderHierarchyChanged: function(renderHierarchy) {
-    // Reload any data on the graph when the render hierarchy (which determines which nodes are
-    // rendered) changes.
-    this.reload();
   },
 
 });

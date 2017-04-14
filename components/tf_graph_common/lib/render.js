@@ -41,8 +41,7 @@ var tfgraph;
             SATURATION: 0.6,
             LIGHTNESS: 0.85,
             /**
-             * Neutral color to use when the node is expanded (used when coloring by
-             * compute time, memory and device).
+             * Neutral color to use when the node is expanded.
              */
             EXPANDED_COLOR: '#f0f0f0',
             /**
@@ -60,7 +59,6 @@ var tfgraph;
                 var light = lightened ? 95 : 80;
                 return d3.hsl(hue, .01 * sat, .01 * light).toString();
             },
-            DEVICE_PALETTE: function (index) { return render.MetanodeColors.STRUCTURE_PALETTE(index); },
             UNKNOWN: '#eee',
             GRADIENT_OUTLINE: '#888'
         };
@@ -148,9 +146,8 @@ var tfgraph;
          * for each node in the graph.
          */
         var RenderGraphInfo = (function () {
-            function RenderGraphInfo(hierarchy, displayingStats) {
+            function RenderGraphInfo(hierarchy) {
                 this.hierarchy = hierarchy;
-                this.displayingStats = displayingStats;
                 this.index = {};
                 this.renderedOpNames = [];
                 this.computeScales();
@@ -165,32 +162,7 @@ var tfgraph;
                 this.traceInputs = false;
             }
             RenderGraphInfo.prototype.computeScales = function () {
-                this.deviceColorMap = d3.scale.ordinal()
-                    .domain(this.hierarchy.devices)
-                    .range(_.map(d3.range(this.hierarchy.devices.length), render.MetanodeColors.DEVICE_PALETTE));
                 var topLevelGraph = this.hierarchy.root.metagraph;
-                // Find the maximum and minimum memory usage.
-                var memoryExtent = d3.extent(topLevelGraph.nodes(), function (nodeName, index) {
-                    var node = topLevelGraph.node(nodeName);
-                    // Some ops don't have stats at all.
-                    if (node.stats != null) {
-                        return node.stats.totalBytes;
-                    }
-                });
-                this.memoryUsageScale = d3.scale.linear()
-                    .domain(memoryExtent)
-                    .range(PARAMS.minMaxColors);
-                // Find also the minimum and maximum compute time.
-                var computeTimeExtent = d3.extent(topLevelGraph.nodes(), function (nodeName, index) {
-                    var node = topLevelGraph.node(nodeName);
-                    // Some ops don't have stats at all.
-                    if (node.stats != null) {
-                        return node.stats.totalMicros;
-                    }
-                });
-                this.computeTimeScale = d3.scale.linear()
-                    .domain(computeTimeExtent)
-                    .range(PARAMS.minMaxColors);
                 this.edgeWidthScale = this.hierarchy.hasShapeInfo ?
                     tfgraph.scene.edge.EDGE_WIDTH_SCALE :
                     d3.scale.linear()
@@ -214,7 +186,6 @@ var tfgraph;
              * or create one if it hasn't been created yet.
              */
             RenderGraphInfo.prototype.getOrCreateRenderNodeByName = function (nodeName) {
-                var _this = this;
                 // Polymer may invoke this with null.
                 if (!nodeName) {
                     return null;
@@ -234,37 +205,6 @@ var tfgraph;
                     new RenderNodeInfo(node);
                 this.index[nodeName] = renderInfo;
                 this.renderedOpNames.push(nodeName);
-                if (node.stats) {
-                    renderInfo.memoryColor = this.memoryUsageScale(node.stats.totalBytes);
-                    renderInfo.computeTimeColor =
-                        this.computeTimeScale(node.stats.totalMicros);
-                }
-                // We only fade nodes when we're displaying stats.
-                renderInfo.isFadedOut = this.displayingStats &&
-                    !tfgraph.util.hasDisplayableNodeStats(node.stats);
-                if (node.isGroupNode) {
-                    // Make a list of tuples (device, proportion), where proportion
-                    // is the fraction of op nodes that have that device.
-                    var pairs = _.pairs(node.deviceHistogram);
-                    if (pairs.length > 0) {
-                        // Compute the total # of devices.
-                        var numDevices_1 = _.sum(pairs, _.last);
-                        renderInfo.deviceColors = _.map(pairs, function (pair) { return ({
-                            color: _this.deviceColorMap(pair[0]),
-                            // Normalize to a proportion of total # of devices.
-                            proportion: pair[1] / numDevices_1
-                        }); });
-                    }
-                }
-                else {
-                    var device = renderInfo.node.device;
-                    if (device) {
-                        renderInfo.deviceColors = [{
-                                color: this.deviceColorMap(device),
-                                proportion: 1.0
-                            }];
-                    }
-                }
                 return this.index[nodeName];
             };
             /**
@@ -355,8 +295,6 @@ var tfgraph;
                 _.each(metagraph.edges(), function (edgeObj) {
                     var metaedge = metagraph.edge(edgeObj);
                     var renderMetaedgeInfo = new RenderMetaedgeInfo(metaedge);
-                    renderMetaedgeInfo.isFadedOut =
-                        _this.index[edgeObj.v].isFadedOut || _this.index[edgeObj.w].isFadedOut;
                     coreGraph.setEdge(edgeObj.v, edgeObj.w, renderMetaedgeInfo);
                 });
                 if (PARAMS.enableExtraction &&
@@ -542,7 +480,6 @@ var tfgraph;
                                 isGroupNode: false,
                                 cardinality: 0,
                                 parentNode: null,
-                                stats: null,
                                 include: tfgraph.InclusionType.UNSPECIFIED,
                                 // BridgeNode properties.
                                 inbound: inbound,
@@ -561,7 +498,6 @@ var tfgraph;
                             isGroupNode: false,
                             cardinality: 1,
                             parentNode: null,
-                            stats: null,
                             include: tfgraph.InclusionType.UNSPECIFIED,
                             // BridgeNode properties.
                             inbound: inbound,
@@ -675,7 +611,6 @@ var tfgraph;
                                 isGroupNode: false,
                                 cardinality: 1,
                                 parentNode: null,
-                                stats: null,
                                 include: tfgraph.InclusionType.UNSPECIFIED,
                                 // BridgeNode properties.
                                 inbound: inbound,
@@ -820,8 +755,7 @@ var tfgraph;
                 this.isInExtract = false;
                 this.isOutExtract = false;
                 this.coreBox = { width: 0, height: 0 };
-                // By default, we don't fade nodes out. Default to false for safety.
-                this.isFadedOut = false;
+                ;
             }
             RenderNodeInfo.prototype.isInCore = function () {
                 return !this.isInExtract && !this.isOutExtract;
@@ -839,7 +773,6 @@ var tfgraph;
                 this.adjoiningMetaedge = null;
                 this.structural = false;
                 this.weight = 1;
-                this.isFadedOut = false;
             }
             return RenderMetaedgeInfo;
         }());

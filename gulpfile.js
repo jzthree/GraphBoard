@@ -63,7 +63,7 @@ gulp.task('server', ['first-compile'], function() {
     host: options.h,
     port: options.p,
     livereload: {
-      enable: true,
+      enable: false,
       // Don't livereload on .ts changes, since they aren't loaded by browser.
       filter: function(filePath, cb) { cb(!(/\.ts$/.test(filePath))); },
       port: 27729 + options.p

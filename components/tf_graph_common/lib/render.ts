@@ -37,8 +37,7 @@ export let MetanodeColors = {
   SATURATION: 0.6,
   LIGHTNESS: 0.85,
   /**
-   * Neutral color to use when the node is expanded (used when coloring by
-   * compute time, memory and device).
+   * Neutral color to use when the node is expanded.
    */
   EXPANDED_COLOR: '#f0f0f0',
   /**
@@ -56,8 +55,6 @@ export let MetanodeColors = {
     let light = lightened ? 95 : 80;
     return d3.hsl(hue, .01 * sat, .01 * light).toString();
   },
-  DEVICE_PALETTE: function(index: number):
-      string { return MetanodeColors.STRUCTURE_PALETTE(index);},
   UNKNOWN: '#eee',
   GRADIENT_OUTLINE: '#888'
 };
@@ -155,12 +152,8 @@ const PARAMS = {
  */
 export class RenderGraphInfo {
   hierarchy: hierarchy.Hierarchy;
-  private displayingStats: boolean;
   private index: {[nodeName: string]: RenderNodeInfo};
   private renderedOpNames: string[];
-  private deviceColorMap: d3.scale.Ordinal<string, string>;
-  private memoryUsageScale: d3.scale.Linear<string, string>;
-  private computeTimeScale: d3.scale.Linear<string, string>;
   /** Scale for the thickness of edges when there is no shape information. */
   edgeWidthScale:
       d3.scale.Linear<number, number> | d3.scale.Pow<number, number>;
@@ -172,9 +165,8 @@ export class RenderGraphInfo {
   root: RenderGroupNodeInfo;
   traceInputs: Boolean;
 
-  constructor(hierarchy: hierarchy.Hierarchy, displayingStats: boolean) {
+  constructor(hierarchy: hierarchy.Hierarchy) {
     this.hierarchy = hierarchy;
-    this.displayingStats = displayingStats;
     this.index = {};
     this.renderedOpNames = [];
 
@@ -191,37 +183,7 @@ export class RenderGraphInfo {
   }
 
   computeScales() {
-    this.deviceColorMap = d3.scale.ordinal<string>()
-        .domain(this.hierarchy.devices)
-        .range(_.map(d3.range(this.hierarchy.devices.length),
-                     MetanodeColors.DEVICE_PALETTE));
-
     let topLevelGraph = this.hierarchy.root.metagraph;
-    // Find the maximum and minimum memory usage.
-    let memoryExtent = d3.extent(topLevelGraph.nodes(),
-        (nodeName, index) => {
-      let node = topLevelGraph.node(nodeName);
-      // Some ops don't have stats at all.
-      if (node.stats != null) {
-        return node.stats.totalBytes;
-      }
-    });
-    this.memoryUsageScale = d3.scale.linear<string, string>()
-        .domain(memoryExtent)
-        .range(PARAMS.minMaxColors);
-
-    // Find also the minimum and maximum compute time.
-    let computeTimeExtent = d3.extent(topLevelGraph.nodes(),
-        (nodeName, index) => {
-      let node = topLevelGraph.node(nodeName);
-      // Some ops don't have stats at all.
-      if (node.stats != null) {
-        return node.stats.totalMicros;
-      }
-    });
-    this.computeTimeScale = d3.scale.linear<string, string>()
-        .domain(computeTimeExtent)
-        .range(PARAMS.minMaxColors);
 
     this.edgeWidthScale = this.hierarchy.hasShapeInfo ?
       scene.edge.EDGE_WIDTH_SCALE :
@@ -271,38 +233,6 @@ export class RenderGraphInfo {
     this.index[nodeName] = renderInfo;
     this.renderedOpNames.push(nodeName);
 
-    if (node.stats) {
-      renderInfo.memoryColor = this.memoryUsageScale(node.stats.totalBytes);
-      renderInfo.computeTimeColor =
-        this.computeTimeScale(node.stats.totalMicros);
-    }
-
-    // We only fade nodes when we're displaying stats.
-    renderInfo.isFadedOut = this.displayingStats &&
-        !tfgraph.util.hasDisplayableNodeStats(node.stats);
-
-    if (node.isGroupNode) {
-      // Make a list of tuples (device, proportion), where proportion
-      // is the fraction of op nodes that have that device.
-      let pairs = _.pairs((<GroupNode>node).deviceHistogram);
-      if (pairs.length > 0) {
-        // Compute the total # of devices.
-        let numDevices = _.sum(pairs, _.last);
-        renderInfo.deviceColors = _.map(pairs, pair => ({
-              color: this.deviceColorMap(pair[0]),
-              // Normalize to a proportion of total # of devices.
-              proportion: pair[1] / numDevices
-            }));
-      }
-    } else {
-      let device = (<OpNode>renderInfo.node).device;
-      if (device) {
-        renderInfo.deviceColors = [{
-          color: this.deviceColorMap(device),
-          proportion: 1.0
-        }];
-      }
-    }
 
     return this.index[nodeName];
   }
@@ -410,8 +340,6 @@ export class RenderGraphInfo {
     _.each(metagraph.edges(), edgeObj => {
       let metaedge = metagraph.edge(edgeObj);
       let renderMetaedgeInfo = new RenderMetaedgeInfo(metaedge);
-      renderMetaedgeInfo.isFadedOut =
-          this.index[edgeObj.v].isFadedOut || this.index[edgeObj.w].isFadedOut;
       coreGraph.setEdge(edgeObj.v, edgeObj.w, renderMetaedgeInfo);
     });
 
@@ -628,7 +556,6 @@ export class RenderGraphInfo {
             isGroupNode: false,
             cardinality: 0,
             parentNode: null,
-            stats: null,
             include: InclusionType.UNSPECIFIED,
             // BridgeNode properties.
             inbound: inbound,
@@ -648,7 +575,6 @@ export class RenderGraphInfo {
           isGroupNode: false,
           cardinality: 1,
           parentNode: null,
-          stats: null,
           include: InclusionType.UNSPECIFIED,
           // BridgeNode properties.
           inbound: inbound,
@@ -769,7 +695,6 @@ export class RenderGraphInfo {
             isGroupNode: false,
             cardinality: 1,
             parentNode: null,
-            stats: null,
             include: InclusionType.UNSPECIFIED,
             // BridgeNode properties.
             inbound: inbound,
@@ -1026,27 +951,8 @@ export class RenderNodeInfo {
    */
   isOutExtract: boolean;
 
-  /**
-   * List of (color, proportion) tuples based on the proportion of devices of
-   * its children. If this node is an op node, this list will have only one
-   * color with proportion 1.0.
-   */
-  deviceColors: {color: string, proportion: number}[];
 
-  /**
-   * Color according to the memory usage of this node.
-   */
-  memoryColor: string;
 
-  /**
-   * Color according to the compute time of this node.
-   */
-  computeTimeColor: string;
-
-  /**
-   * Whether this node is faded out. Used when displaying stats.
-   */
-  isFadedOut: boolean;
 
   constructor(node: Node) {
     this.node = node;
@@ -1080,8 +986,7 @@ export class RenderNodeInfo {
     this.isOutExtract = false;
     this.coreBox = {width: 0, height: 0};
 
-    // By default, we don't fade nodes out. Default to false for safety.
-    this.isFadedOut = false;
+;
   }
 
   isInCore(): boolean {
@@ -1143,18 +1048,12 @@ export class RenderMetaedgeInfo {
   /** Id of the <marker> used as an end-marker for the edge path. */
   endMarkerId: string;
 
-  /**
-   * Whether this edge is faded out. Used for fading out unused edges when
-   * displaying run statistics.
-   */
-  isFadedOut: boolean;
 
   constructor(metaedge: Metaedge) {
     this.metaedge = metaedge;
     this.adjoiningMetaedge = null;
     this.structural = false;
     this.weight = 1;
-    this.isFadedOut = false;
   }
 }
 

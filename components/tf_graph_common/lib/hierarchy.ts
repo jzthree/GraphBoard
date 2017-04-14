@@ -28,8 +28,6 @@ export interface Edges {
 export interface Hierarchy {
   root: Metanode;
   templates: {[templateId: string]: string[]};
-  /** List of all device names */
-  devices: string[];
   /** True if at least one tensor in the graph has shape information */
   hasShapeInfo: boolean;
   /** The maximum size across all meta edges. Used for scaling thickness. */
@@ -51,7 +49,6 @@ class HierarchyImpl implements Hierarchy {
   root: Metanode;
   templates: {[templateId: string]: string[]};
   private index: {[nodeName: string]: GroupNode|OpNode};
-  devices: string[];
   hasShapeInfo = false;
   maxMetaEdgeSize = 1;
   orderings: { [nodeName: string]: { [childName: string]: number } };
@@ -59,7 +56,6 @@ class HierarchyImpl implements Hierarchy {
   constructor() {
     this.root = createMetanode(ROOT_NAME, {compound: true});
     this.templates = null;
-    this.devices = null;
     /**
      * @type {Object} Dictionary object that maps node name to the node
      * (could be op-node, metanode, or series-node)
@@ -395,14 +391,6 @@ export function build(graph: tfgraph.SlimGraph, params: HierarchyParams,
       .runAsyncTask(
           'Adding nodes', 20,
           () => {
-            // Get all the possible device names.
-            let deviceNames = {};
-            _.each(graph.nodes, (node, nodeName) => {
-              if (node.device != null) {
-                deviceNames[node.device] = true;
-              }
-            });
-            h.devices = _.keys(deviceNames);
             addNodes(h, graph);
           },
           tracker)
@@ -429,42 +417,6 @@ export function build(graph: tfgraph.SlimGraph, params: HierarchyParams,
       .then(() => { return h; });
 };
 
-export function joinAndAggregateStats(
-    h: Hierarchy, stats: tfgraph.proto.StepStats) {
-  // Get all the possible device names.
-  let deviceNames = {};
-  _.each(h.root.leaves(), nodeName => {
-    let leaf = <OpNode> h.node(nodeName);
-    if (leaf.device != null) {
-      deviceNames[leaf.device] = true;
-    }
-  });
-  h.devices = _.keys(deviceNames);
-
-  // Reset stats for each group node.
-  _.each(h.getNodeMap(), (node, nodeName) => {
-    if (node.isGroupNode) {
-      node.stats = new NodeStats(null);
-      (<GroupNode>node).deviceHistogram = {};
-    }
-  });
-
-  // Bubble-up the stats and device distribution from leaves to parents.
-  _.each(h.root.leaves(), nodeName => {
-    let leaf = <OpNode> h.node(nodeName);
-    let node = <GroupNode|OpNode> leaf;
-    while (node.parentNode != null) {
-      if (leaf.device != null) {
-        let deviceHistogram = (<GroupNode>node.parentNode).deviceHistogram;
-        deviceHistogram[leaf.device] = (deviceHistogram[leaf.device] || 0) + 1;
-      }
-      if (leaf.stats != null) {
-        node.parentNode.stats.combine(leaf.stats);
-      }
-      node = <GroupNode> node.parentNode;
-    }
-  });
-}
 
 /**
  * Creates the metanodes in the hierarchical graph and assigns parent-child
@@ -484,10 +436,6 @@ function addNodes(h: Hierarchy, graph: SlimGraph) {
       parent.depth = Math.max(parent.depth, path.length - i);
       parent.cardinality += node.cardinality;
       parent.opHistogram[node.op] = (parent.opHistogram[node.op] || 0) + 1;
-      if (node.device != null) {
-        parent.deviceHistogram[node.device] =
-            (parent.deviceHistogram[node.device] || 0) + 1;
-      }
       if (i === path.length - 1) { break; }
       let name = path[i];
       let child = <Metanode>h.node(name);
@@ -652,10 +600,6 @@ function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
       seriesNode.metagraph.setNode(n, child);
       seriesNode.parentNode = child.parentNode;
       seriesNode.cardinality++;
-      if (child.device != null) {
-        seriesNode.deviceHistogram[child.device] =
-            (seriesNode.deviceHistogram[child.device] || 0) + 1;
-      }
       child.parentNode = seriesNode;
       seriesNames[n] = seriesName;
       // Remove now-grouped node from its original parent's metagraph.
@@ -664,7 +608,7 @@ function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
   });
 };
 
-/** cluster op-nodes with similar op */
+/** cluster op-nodes with same op */
 function clusterNodes(metagraph: graphlib.Graph<GroupNode|OpNode, Metaedge>):
     {[clusterId: string]: string[]} {
   let result: {[clusterId: string]: string[]} = {};
